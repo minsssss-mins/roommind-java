@@ -10,6 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/member/**")
-public class MemberController {
+public class UserController {
 
 }

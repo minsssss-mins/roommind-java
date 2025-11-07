@@ -30,6 +30,7 @@ dependencies {
 
 	// 2. MyBatis (JPA 대신 사용)
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+a
 
 	// 3. Thymeleaf (서버 템플릿 테스트용)
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
