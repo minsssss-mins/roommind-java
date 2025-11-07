@@ -1,0 +1,63 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.5.7'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.roomgenius'
+version = '0.0.1-SNAPSHOT'
+description = 'AI-based Furniture Recommendation System'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	// 1. 웹 관련
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// 2. MyBatis (JPA 대신 사용)
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+
+	// 3. Thymeleaf (서버 템플릿 테스트용)
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+	// 4. MySQL 드라이버
+	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// 5. Lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// 6. DevTools (자동 리로드)
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	// 7. Validation (입력값 검증)
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// 8. JDBC API (기본 DB 연결)
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+
+	// 9. 테스트 관련
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// 10. 로그인 인가
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
