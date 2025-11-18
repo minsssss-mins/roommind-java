@@ -15,10 +15,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class NaverShoppingService {
 
-    @Value("${naver.clientId}")
+    @Value("${naver.clientId}")      // ✅ 카멜 케이스
     private String clientId;
 
-    @Value("${naver.clientSecret}")
+    @Value("${naver.clientSecret}")  // ✅ 카멜 케이스
     private String clientSecret;
 
     private final RestTemplate restTemplate = new RestTemplate();

@@ -1,11 +1,13 @@
 spring:
+  config:
+    import: optional:file:.env
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/furniture_recommendation?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
-    username: root
-    password: 12345
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
-# MyBatis 설정 (spring 안에 있으면 안됨!)
 mybatis:
   mapper-locations: classpath:mappers/*.xml
   type-aliases-package: com.roomgenius.furniture_recommendation.entity
@@ -13,29 +15,24 @@ mybatis:
     map-underscore-to-camel-case: true
     jdbc-type-for-null: NULL
 
-# 로깅
 logging:
   level:
     com.roomgenius.furniture_recommendation.mapper: DEBUG
     org.springframework.jdbc: DEBUG
 
-# 서버 포트
 server:
   port: 8080
 
-# JWT 관련 환경 변수 (추가 ✅)
 jwt:
-  secret: mySuperSecretKeyForJwtTokenThatShouldBeVeryLong1234567890 #토큰 서명용 비밀키 (반드시 길게 설정해야 함)
-  expiration: 3600000 # 토큰 만료 시간 (1시간 예시)
-
-
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}
 
 kakao:
-  client_id: 7b62303d0ceb217901b7351eddae0c8b
-  redirect_uri: http://localhost:8080/social
-  token_uri: https://kauth.kakao.com/oauth/token
-  user_info_uri: https://kapi.kakao.com/v2/user/me
+  clientId: ${KAKAO_CLIENT_ID}
+  redirectUri: ${KAKAO_REDIRECT_URI}
+  tokenUri: ${KAKAO_TOKEN_URI}
+  userInfoUri: ${KAKAO_USER_INFO_URI}
 
 naver:
-  clientId: qhlJdDqg2saJh025gcEG
-  clientSecret: p0xN3o92pY
+  clientId: ${NAVER_CLIENT_ID}
+  clientSecret: ${NAVER_CLIENT_SECRET}
