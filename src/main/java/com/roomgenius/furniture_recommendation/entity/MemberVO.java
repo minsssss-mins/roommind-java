@@ -13,14 +13,18 @@ import java.time.LocalDateTime;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MemberVO {
-    private int userId;                // 회원 고유 ID (PK)
-    private String username;           // 사용자 이름
+    private int userId;                // PK
+    private String username;           // 이름
     private String phone;              // 전화번호
     private String address;            // 주소
-    private String email;              // 이메일
-    private String password;           // 비밀번호
-    private String role;               // 역할 (예: USER, ADMIN)
+
+    private String email;              // 일반 로그인에서 사용
+    private String password;           // 일반 로그인에서 사용
+
+    private String socialType;         // KAKAO / GOOGLE 등 소셜 로그인 타입
+    private String socialId;           // 소셜 계정 고유 ID
+
+    private String role;               // USER / ADMIN
     private LocalDateTime createdDate; // 생성일
     private LocalDateTime updatedDate; // 수정일
 }
-

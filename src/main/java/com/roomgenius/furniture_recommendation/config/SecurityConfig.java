@@ -31,6 +31,7 @@ public class SecurityConfig {
     // ✅ CORS 설정
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         config.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // React 개발 서버 주소
@@ -57,6 +58,10 @@ public class SecurityConfig {
 
                 // ✅ URL별 권한 설정
                 .authorizeHttpRequests(auth -> auth
+                        // 소셜로그인 누구나 접근가능
+                        .requestMatchers("/social").permitAll()
+                        .requestMatchers("/oauth/kakao").permitAll()
+                        .requestMatchers("/api/naver/**").permitAll()
                         // 회원가입, 로그인은 누구나 접근 가능
                         .requestMatchers("/api/members/signup", "/api/members/login").permitAll()
 
