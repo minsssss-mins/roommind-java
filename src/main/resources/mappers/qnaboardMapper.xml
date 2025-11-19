@@ -5,79 +5,79 @@
 
 <mapper namespace="com.roomgenius.furniture_recommendation.mapper.QnABoardMapper">
 
-    <!-- ✅ 게시글 등록 -->
-    <insert id="insert" parameterType="com.roomgenius.furniture_recommendation.entity.QnABoardVO"
-            useGeneratedKeys="true" keyProperty="boardId">
-        INSERT INTO Boards (
-        userId,
+    <!-- 게시글 등록 -->
+    <insert id="insert"
+            parameterType="com.roomgenius.furniture_recommendation.entity.QnABoardVO"
+            useGeneratedKeys="true"
+            keyProperty="qnaBoardId">
+
+        INSERT INTO QnABoard (
+        user_id,
         title,
         content,
-        image_urls,
-        createdDate,
-        updatedDate
+        created_date,
+        updated_date
         )
         VALUES (
         #{userId},
         #{title},
         #{content},
-        #{imageUrls},
         NOW(),
         NOW()
-        )
+        );
     </insert>
 
-    <!-- ✅ 게시글 전체 조회 (작성자 정보 포함) -->
-    <select id="selectAll" resultType="com.roomgenius.furniture_recommendation.entity.QnABoardVO">
+
+    <!-- 게시글 전체 조회 (작성자 이름 포함) -->
+    <select id="selectAll"
+            resultType="com.roomgenius.furniture_recommendation.entity.QnABoardVO">
         SELECT
-        b.boardId AS boardId,
-        b.userId AS userId,
-        b.title AS title,
-        b.content AS content,
-        b.image_urls AS imageUrls,
-        b.comment_count AS commentCount,
-        b.like_count AS likeCount,
-        b.createdDate AS createdDate,
-        b.updatedDate AS updatedDate,
-        u.username AS username,
-        u.email AS email
-        FROM Boards b
-        JOIN Users u ON b.userId = u.userId
-        ORDER BY b.boardId DESC
+        q.qna_board_id AS qnaBoardId,
+        q.user_id      AS userId,
+        q.title        AS title,
+        q.content      AS content,
+        q.created_date AS createdDate,
+        q.updated_date AS updatedDate,
+        u.user_name    AS userName,
+        u.email        AS email
+        FROM QnABoard q
+        JOIN User u ON q.user_id = u.user_id
+        ORDER BY q.qna_board_id DESC
     </select>
 
-    <!-- ✅ 게시글 상세 조회 (작성자 정보 포함) -->
-    <select id="selectById" parameterType="int" resultType="com.roomgenius.furniture_recommendation.entity.QnABoardVO">
+    <!-- 게시글 상세 조회 -->
+    <select id="selectById"
+            parameterType="Integer"
+            resultType="com.roomgenius.furniture_recommendation.entity.QnABoardVO">
         SELECT
-        b.boardId AS boardId,
-        b.userId AS userId,
-        b.title AS title,
-        b.content AS content,
-        b.image_urls AS imageUrls,
-        b.comment_count AS commentCount,
-        b.like_count AS likeCount,
-        b.createdDate AS createdDate,
-        b.updatedDate AS updatedDate,
-        u.username AS username,
-        u.email AS email
-        FROM Boards b
-        JOIN Users u ON b.userId = u.userId
-        WHERE b.boardId = #{boardId}
+        q.qna_board_id AS qnaBoardId,
+        q.user_id      AS userId,
+        q.title        AS title,
+        q.content      AS content,
+        q.created_date AS createdDate,
+        q.updated_date AS updatedDate,
+        u.user_name    AS userName,
+        u.email        AS email
+        FROM QnABoard q
+        JOIN User u ON q.user_id = u.user_id
+        WHERE q.qna_board_id = #{qnaBoardId}
     </select>
 
-    <!-- ✅ 게시글 수정 -->
-    <update id="update" parameterType="com.roomgenius.furniture_recommendation.entity.QnABoardVO">
-        UPDATE Boards
+    <!-- 게시글 수정 -->
+    <update id="update"
+            parameterType="com.roomgenius.furniture_recommendation.entity.QnABoardVO">
+        UPDATE QnABoard
         SET
-        title = #{title},
-        content = #{content},
-        image_urls = #{imageUrls},
-        updatedDate = NOW()
-        WHERE boardId = #{boardId}
+        title        = #{title},
+        content      = #{content},
+        updated_date = NOW()
+        WHERE qna_board_id = #{qnaBoardId}
     </update>
 
-    <!-- ✅ 게시글 삭제 -->
-    <delete id="delete" parameterType="int">
-        DELETE FROM Boards WHERE boardId = #{boardId}
+    <!-- 게시글 삭제 -->
+    <delete id="delete" parameterType="Integer">
+        DELETE FROM QnABoard
+        WHERE qna_board_id = #{qnaBoardId}
     </delete>
 
 </mapper>

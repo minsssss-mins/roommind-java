@@ -1,6 +1,7 @@
 package com.roomgenius.furniture_recommendation.service;
 
 import com.roomgenius.furniture_recommendation.entity.UserDTO;
+import com.roomgenius.furniture_recommendation.entity.UserVO;
 
 public interface UserService {
 
@@ -12,4 +13,7 @@ public interface UserService {
 
     // 로그인
     UserDTO login(UserDTO dto);
+
+    // ⭐ 이메일로 Member 조회 (QnA 게시판에서 필수)
+    UserVO findByEmail(String email);
 }

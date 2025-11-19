@@ -1,6 +1,5 @@
 package com.roomgenius.furniture_recommendation.mapper;
 
-
 import com.roomgenius.furniture_recommendation.entity.QnABoardVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -17,12 +16,11 @@ public interface QnABoardMapper {
     List<QnABoardVO> selectAll();
 
     // 게시글 상세 조회
-    QnABoardVO selectById(@Param("boardId") int boardId);
+    QnABoardVO selectById(@Param("qnaBoardId") Integer qnaBoardId);
 
     // 게시글 수정
     int update(QnABoardVO bvo);
 
     // 게시글 삭제
-    int delete(@Param("boardId") int boardId);
+    int delete(@Param("qnaBoardId") Integer qnaBoardId);
 }
-

@@ -66,10 +66,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/signup", "/api/users/login").permitAll()
 
                         // 게시판: 조회(GET)은 공개, 등록/수정/삭제는 인증 필요
-                        .requestMatchers(HttpMethod.GET, "/api/boards/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/boards/**").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/api/boards/**").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/boards/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/qnaboards/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/qnaboards/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/qnaboards/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/qnaboards/**").authenticated()
 
                         // 관리자 전용
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

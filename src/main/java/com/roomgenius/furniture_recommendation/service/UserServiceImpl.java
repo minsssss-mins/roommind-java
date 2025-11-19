@@ -21,15 +21,12 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDTO signup(UserDTO dto) {
-        // 1. 이메일 중복 체크
         if (userMapper.countByEmail(dto.getEmail()) > 0) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다");
         }
 
-        // 2. 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
 
-        // 3. User 엔티티 생성
         UserVO user = UserVO.builder()
                 .userName(dto.getUserName())
                 .phone(dto.getPhone())
@@ -39,10 +36,8 @@ public class UserServiceImpl implements UserService {
                 .role("user")
                 .build();
 
-        // 4. DB 저장
         userMapper.insertUser(user);
 
-        // 5. DTO로 변환 후 반환 (비밀번호 제외)
         return UserDTO.builder()
                 .userId(user.getUserId())
                 .userName(user.getUserName())
@@ -58,21 +53,13 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public UserDTO login(UserDTO dto) {
-        // 1. 이메일로 회원 조회
         UserVO user = userMapper.findByEmail(dto.getEmail());
-        if (user == null) {
+        if (user == null || !passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("이메일 또는 비밀번호가 일치하지 않습니다");
         }
 
-        // 2. 비밀번호 검증
-        if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("이메일 또는 비밀번호가 일치하지 않습니다");
-        }
-
-        // 3. JWT 토큰 생성
         String token = jwtTokenProvider.generateToken(user.getEmail(), user.getRole());
 
-        // 4. 로그인 응답 DTO 생성 (비밀번호 제외)
         return UserDTO.builder()
                 .userId(user.getUserId())
                 .userName(user.getUserName())
@@ -101,5 +88,15 @@ public class UserServiceImpl implements UserService {
                 .createdDate(user.getCreatedDate())
                 .updateDate(user.getUpdatedDate())
                 .build();
+    }
+
+    // ⭐ 이메일로 UserVO 조회 (QnA 게시판에서 필수)
+    @Override
+    public UserVO findByEmail(String email) {
+        UserVO user = userMapper.findByEmail(email);
+        if (user == null) {
+            throw new IllegalArgumentException("회원을 찾을 수 없습니다");
+        }
+        return user;
     }
 }

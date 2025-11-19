@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.roomgenius.furniture_recommendation.mapper.FileMapper">
+
+    <!-- 공통 resultMap -->
+    <resultMap id="FileResultMap" type="com.roomgenius.furniture_recommendation.entity.FileVO">
+        <id     property="uuid"             column="uuid"/>
+        <result property="qnaBoardId"       column="qna_board_id"/>
+        <result property="productId"        column="product_id"/>
+        <result property="communityBoardId" column="community_board_id"/>
+        <result property="saveDir"          column="save_dir"/>
+        <result property="fileName"         column="file_name"/>
+        <result property="fileType"         column="file_type"/>
+        <result property="fileSize"         column="file_size"/>
+        <result property="createdDate"      column="created_date"/>
+    </resultMap>
+
+    <!-- 1) 파일 등록 -->
+    <insert id="insert" parameterType="com.roomgenius.furniture_recommendation.entity.FileVO">
+        INSERT INTO File (
+        uuid,
+        qna_board_id,
+        product_id,
+        community_board_id,
+        save_dir,
+        file_name,
+        file_type,
+        file_size
+        )
+        VALUES (
+        #{uuid},
+        #{qnaBoardId},
+        #{productId},
+        #{communityBoardId},
+        #{saveDir},
+        #{fileName},
+        #{fileType},
+        #{fileSize}
+        )
+    </insert>
+
+    <!-- 2) uuid로 단건 조회 -->
+    <select id="selectByUuid" resultMap="FileResultMap">
+        SELECT * FROM File WHERE uuid = #{uuid}
+    </select>
+
+    <!-- 3) QnA 게시글 기준 조회 -->
+    <select id="selectByQnaBoardId" resultMap="FileResultMap">
+        SELECT * FROM File
+        WHERE qna_board_id = #{qnaBoardId}
+        ORDER BY created_date ASC
+    </select>
+
+    <!-- 4) 상품 기준 조회 -->
+    <select id="selectByProductId" resultMap="FileResultMap">
+        SELECT * FROM File
+        WHERE product_id = #{productId}
+        ORDER BY created_date ASC
+    </select>
+
+    <!-- 5) 커뮤니티 게시글 기준 조회 -->
+    <select id="selectByCommunityBoardId" resultMap="FileResultMap">
+        SELECT * FROM File
+        WHERE community_board_id = #{communityBoardId}
+        ORDER BY created_date ASC
+    </select>
+
+    <!-- 6) uuid로 삭제 -->
+    <delete id="deleteByUuid">
+        DELETE FROM File WHERE uuid = #{uuid}
+    </delete>
+
+    <!-- 7) QnA 게시글의 파일 전체 삭제 -->
+    <delete id="deleteByQnaBoardId">
+        DELETE FROM File WHERE qna_board_id = #{qnaBoardId}
+    </delete>
+
+    <!-- 8) 상품의 파일 전체 삭제 -->
+    <delete id="deleteByProductId">
+        DELETE FROM File WHERE product_id = #{productId}
+    </delete>
+
+    <!-- 9) 커뮤니티 게시글의 파일 전체 삭제 -->
+    <delete id="deleteByCommunityBoardId">
+        DELETE FROM File WHERE community_board_id = #{communityBoardId}
+    </delete>
+
+</mapper>
