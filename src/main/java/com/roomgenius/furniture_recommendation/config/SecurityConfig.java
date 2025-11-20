@@ -67,6 +67,7 @@ public class SecurityConfig {
 
                         // 게시판: 조회(GET)은 공개, 등록/수정/삭제는 인증 필요
                         .requestMatchers(HttpMethod.GET, "/api/qnaboards/**").permitAll()
+
                         .requestMatchers(HttpMethod.POST, "/api/qnaboards/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/qnaboards/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/qnaboards/**").authenticated()
