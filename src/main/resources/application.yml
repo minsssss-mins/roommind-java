@@ -2,6 +2,11 @@ spring:
   config:
     import: optional:file:.env
 
+  sql:
+    init:
+      mode: always  # 항상 실행
+      # mode: never  # 프로덕션에서는 never로 변경
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_URL}

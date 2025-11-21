@@ -65,10 +65,12 @@ public class FileServiceImpl implements FileService {
     }
 
     /** 실제 파일 저장 + DB insert */
-    private List<FileVO> saveFiles(Integer qnaBoardId,
-                                   Integer productId,
-                                   Integer communityBoardId,
-                                   List<MultipartFile> files) {
+    /** 실제 파일 저장 + DB insert */
+    private List<FileVO> saveFiles(
+            Integer qnaBoardId,
+            Integer productId,
+            Integer communityBoardId,
+            List<MultipartFile> files) {
 
         List<FileVO> savedFiles = new ArrayList<>();
 
@@ -76,9 +78,18 @@ public class FileServiceImpl implements FileService {
             return savedFiles;
         }
 
-        // 오늘 날짜 기준 하위 폴더 생성 (예: uploads/2025-11-19)
-        String todayDir = LocalDate.now().toString();
-        String saveDir = UPLOAD_ROOT + "/" + todayDir;
+        // 오늘 날짜
+        String today = LocalDate.now().toString();
+
+        // ⭐ 게시판 유형별 하위 폴더 결정
+        String typeFolder = "common";
+
+        if (qnaBoardId != null)         typeFolder = "qna";
+        else if (productId != null)     typeFolder = "product";
+        else if (communityBoardId != null) typeFolder = "community";
+
+        // 폴더 구조: uploads/{type}/{날짜}/
+        String saveDir = UPLOAD_ROOT + "/" + typeFolder + "/" + today;
 
         File dir = new File(saveDir);
         if (!dir.exists() && dir.mkdirs()) {
@@ -86,7 +97,7 @@ public class FileServiceImpl implements FileService {
         }
 
         for (MultipartFile file : files) {
-            validateFile(file); // 형식 / 사이즈 검증
+            validateFile(file);
 
             String originalFilename = file.getOriginalFilename();
             long fileSize = file.getSize();
@@ -107,9 +118,9 @@ public class FileServiceImpl implements FileService {
                     .qnaBoardId(qnaBoardId)
                     .productId(productId)
                     .communityBoardId(communityBoardId)
-                    .saveDir(saveDir)           // 예: /.../uploads/2025-11-19
-                    .fileName(storedFileName)   // uuid_원본파일명
-                    .fileType(0)                // 0:일반 이미지
+                    .saveDir(saveDir)
+                    .fileName(storedFileName)
+                    .fileType(0)
                     .fileSize(fileSize)
                     .build();
 
@@ -120,6 +131,7 @@ public class FileServiceImpl implements FileService {
 
         return savedFiles;
     }
+
 
     /** 물리 파일 삭제 */
     private void deletePhysicalFile(String saveDir, String fileName) {
@@ -134,6 +146,10 @@ public class FileServiceImpl implements FileService {
             log.error("❌ 파일 삭제 중 오류: ", e);
         }
     }
+
+
+
+
 
     // ================== QnA용 구현 ==================
 
@@ -160,17 +176,20 @@ public class FileServiceImpl implements FileService {
 
     // ================== 상품(Product)용 구현 ==================
 
+    // 이미지 등록
     @Override
     @Transactional
     public List<FileVO> uploadProductFiles(Integer productId, List<MultipartFile> files) {
         return saveFiles(null, productId, null, files);
     }
 
+    // 이미지 조회
     @Override
     public List<FileVO> getProductFiles(Integer productId) {
         return fileMapper.selectByProductId(productId);
     }
 
+    // 이미지 삭제
     @Override
     @Transactional
     public void deleteProductFiles(Integer productId) {

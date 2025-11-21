@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserVO {
-    private int userId;                // PK
+    private Integer userId;                // PK
     private String userName;           // 이름
     private String phone;              // 전화번호
     private String address;            // 주소

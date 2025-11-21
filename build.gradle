@@ -63,11 +63,14 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
-	// 12. Webflux
+	// 12. Webflux (비동기 통신 클라이언트용) 오픈 api 사용하기 위함
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
 	// 13. Java/Spring 프로젝트에서 .env 파일을 자동으로 읽어오는 라이브러리
 	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+
+
+
 
 }
 

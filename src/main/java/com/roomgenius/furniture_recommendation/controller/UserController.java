@@ -16,7 +16,6 @@ import java.util.Map;
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 @Validated
-@CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
 
     private final UserService userService;

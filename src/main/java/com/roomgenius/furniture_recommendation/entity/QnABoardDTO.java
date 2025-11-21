@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class QnABoardDTO {
-    // ===== 응답 전용 필드 =====
+
     private Integer qnaBoardId;      // PK
     private Integer userId;          // 작성자 FK
 
@@ -28,7 +28,7 @@ public class QnABoardDTO {
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
 
-    // ===== 요청/응답 공통 필드 =====
+
     @NotBlank(message = "제목은 필수입니다")
     @Size(max = 255, message = "제목은 255자를 초과할 수 없습니다")
     private String title;

@@ -35,7 +35,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         config.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // React 개발 서버 주소
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         config.setExposedHeaders(Arrays.asList("Authorization")); // JWT 헤더 클라이언트 노출
 
@@ -67,10 +67,11 @@ public class SecurityConfig {
 
                         // 게시판: 조회(GET)은 공개, 등록/수정/삭제는 인증 필요
                         .requestMatchers(HttpMethod.GET, "/api/qnaboards/**").permitAll()
-
                         .requestMatchers(HttpMethod.POST, "/api/qnaboards/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/qnaboards/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/qnaboards/**").authenticated()
+
+
 
                         // 관리자 전용
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
