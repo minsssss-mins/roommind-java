@@ -1,6 +1,7 @@
 package com.roomgenius.furniture_recommendation.controller;
 
 import com.roomgenius.furniture_recommendation.entity.ProductDTO;
+import com.roomgenius.furniture_recommendation.entity.ProductVO;
 import com.roomgenius.furniture_recommendation.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,18 @@ public class ProductController {
         return ResponseEntity.ok(Map.of(
                 "success", true,
                 "productId", productId
+        ));
+    }
+
+    /** ⭐ 상품 전체 조회 **/
+    @GetMapping
+    public ResponseEntity<?> selectAllProducts() {
+        List<ProductVO> list = productService.selectAllProducts();
+
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "count", list.size(),
+                "products", list
         ));
     }
 

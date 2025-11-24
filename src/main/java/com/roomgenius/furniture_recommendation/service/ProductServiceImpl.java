@@ -1,11 +1,14 @@
 package com.roomgenius.furniture_recommendation.service;
 
 import com.roomgenius.furniture_recommendation.entity.ProductDTO;
+import com.roomgenius.furniture_recommendation.entity.ProductVO;
 import com.roomgenius.furniture_recommendation.mapper.ProductMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -29,5 +32,10 @@ public class ProductServiceImpl implements ProductService {
         }
 
         return productId;
+    }
+
+    @Override
+    public List<ProductVO> selectAllProducts() {
+        return productMapper.selectAllProducts();  // 단일 쿼리 실행
     }
 }

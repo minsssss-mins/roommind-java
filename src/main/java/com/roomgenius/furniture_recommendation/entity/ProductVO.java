@@ -19,4 +19,6 @@ public class ProductVO {
     private String description;
     private String createdDate;
     private String updatedDate;
+
+    private String imageUrl;
 }
