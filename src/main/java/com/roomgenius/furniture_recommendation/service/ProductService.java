@@ -17,4 +17,7 @@ public interface ProductService {
 
     // ⭐ 단일 삭제 추가
     int deleteProductById(Integer productId);
+
+    // ⭐ 상품 수정 추가
+    int updateProduct(ProductDTO dto);
 }

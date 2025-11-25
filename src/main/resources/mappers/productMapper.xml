@@ -145,4 +145,22 @@
         WHERE product_id = #{productId}
     </delete>
 
+    <!-- ⭐ 상품 수정 -->
+    <update id="updateProduct"
+            parameterType="com.roomgenius.furniture_recommendation.entity.ProductDTO">
+
+        UPDATE Product
+        SET
+        category_id = #{categoryId},
+        product_name = #{productName},
+        brand = #{brand},
+        original_price = #{originalPrice},
+        sale_price = #{salePrice},
+        stock = #{stock},
+        description = #{description},
+        updated_date = NOW()
+        WHERE product_id = #{productId}
+
+    </update>
+
 </mapper>

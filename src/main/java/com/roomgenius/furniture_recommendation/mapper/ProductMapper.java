@@ -21,6 +21,9 @@ public interface ProductMapper {
 
     // ⭐ 단일 삭제
     int deleteProductById(Integer productId);
+
+    // ⭐ 수정 추가
+    int updateProduct(ProductDTO dto);
 }
 
 

@@ -49,4 +49,23 @@ public class ProductServiceImpl implements ProductService {
     public int deleteProductById(Integer productId) {
         return productMapper.deleteProductById(productId);
     }
+
+    @Override
+    @Transactional
+    public int updateProduct(ProductDTO dto) {
+
+        int result = productMapper.updateProduct(dto);
+
+        // 파일이 있을 경우 파일도 수정 처리
+        if (dto.getFiles() != null && !dto.getFiles().isEmpty()) {
+
+            // 기존 파일 삭제 (DB / 로컬 모두)
+            fileService.deleteProductFiles(dto.getProductId());
+
+            // 새로운 파일 업로드
+            fileService.uploadProductFiles(dto.getProductId(), dto.getFiles());
+        }
+
+        return result;
+    }
 }

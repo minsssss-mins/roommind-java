@@ -83,5 +83,29 @@ public class ProductController {
         ));
     }
 
+    @PutMapping("/{productId}")
+    public ResponseEntity<?> updateProduct(
+            @PathVariable Integer productId,
+            @RequestPart("product") ProductDTO dto,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+
+        dto.setProductId(productId);
+        dto.setFiles(files);
+
+        int updated = productService.updateProduct(dto);
+
+        if (updated == 0) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "success", false,
+                    "message", "수정할 상품을 찾을 수 없습니다."
+            ));
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "상품이 성공적으로 수정되었습니다."
+        ));
+    }
+
 }
 
