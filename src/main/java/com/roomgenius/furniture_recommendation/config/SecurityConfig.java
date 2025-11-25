@@ -58,27 +58,28 @@ public class SecurityConfig {
 
                 // ✅ URL별 권한 설정
                 .authorizeHttpRequests(auth -> auth
-                        // 소셜로그인 누구나 접근가능
-                        .requestMatchers("/social").permitAll()
-                        .requestMatchers("/oauth/kakao").permitAll()
+                        // ⭐ 소셜 로그인 관련 URL 전체 허용
+                        .requestMatchers("/oauth/**", "/social/**").permitAll()
+
+                        // 네이버 검색 api
                         .requestMatchers("/api/naver/**").permitAll()
-                        // 회원가입, 로그인은 누구나 접근 가능
+
+                        // 회원가입, 로그인
                         .requestMatchers("/api/users/signup", "/api/users/login").permitAll()
 
-                        // 게시판: 조회(GET)은 공개, 등록/수정/삭제는 인증 필요
+                        // 게시판 GET은 누구나, 나머지는 인증 필요
                         .requestMatchers(HttpMethod.GET, "/api/qnaboards/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/qnaboards/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/qnaboards/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/qnaboards/**").authenticated()
 
-
-
                         // 관리자 전용
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                        // 그 외 요청은 인증 필요
+                        // 그 외는 인증 필요
                         .anyRequest().authenticated()
                 )
+
 
                 // ✅ JWT 필터 등록 (UsernamePasswordAuthenticationFilter 앞에 추가)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

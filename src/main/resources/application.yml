@@ -41,3 +41,18 @@ kakao:
 naver:
   clientId: ${NAVER_CLIENT_ID}
   clientSecret: ${NAVER_CLIENT_SECRET}
+  redirectUri: ${NAVER_REDIRECT_URI}          # 네이버에서 승인 후 이동할 URL
+  authUri: ${NAVER_AUTH_URI}
+  tokenUri: ${NAVER_TOKEN_URI}
+  userInfoUri: ${NAVER_USER_INFO_URI}
+
+google:
+  clientId: ${GOOGLE_CLIENT_ID}
+  clientSecret: ${GOOGLE_CLIENT_SECRET}
+  redirectUri: ${GOOGLE_REDIRECT_URI}
+  authUri: ${GOOGLE_AUTH_URI}
+  tokenUri: ${GOOGLE_TOKEN_URI}
+  userInfoUri: ${GOOGLE_USER_INFO_URI}
+
+
+

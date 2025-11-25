@@ -1,6 +1,6 @@
 package com.roomgenius.furniture_recommendation.controller;
 
-import com.roomgenius.furniture_recommendation.service.OAuthService;
+import com.roomgenius.furniture_recommendation.service.OAuthServiceImpl;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,115 +11,202 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.UUID;
 
-@Slf4j // 로그 출력
-@RestController // API 컨트롤러
-@RequiredArgsConstructor // final 필드에 대해 생성자 자동 생성
+@Slf4j
+@RestController
+@RequiredArgsConstructor
 public class OAuthController {
 
-    // ⭐ 카카오 로그인 전체 로직을 처리하는 서비스
-    private final OAuthService oAuthService;
+    private final OAuthServiceImpl oAuthServiceImpl;
 
-    // ===============================
-    // yml에서 불러오는 값들
-    // ===============================
+    // ⭐ 프론트엔드 URL (기본값: http://localhost:3000)
+    @Value("${frontend.url:http://localhost:3000}")
+    private String frontendUrl;
 
-    @Value("${kakao.clientId}")        // ← client_id → clientId
+    // ========================================================
+    // 🔹 카카오 로그인
+    // ========================================================
+
+    @Value("${kakao.clientId}")
     private String kakaoClientId;
 
-    @Value("${kakao.redirectUri}")     // ← redirect_uri → redirectUri
+    @Value("${kakao.redirectUri}")
     private String kakaoRedirectUri;
 
-    @Value("${frontend.url:http://localhost:3000}")
-    private String frontendUrl;        // ← 이건 그대로 OK
-
     /**
-     * 1️⃣ React가 이 URL 호출 → 카카오 로그인 페이지로 이동
+     * 1) React → 카카오 로그인 페이지로 이동
      * GET /oauth/kakao
      */
     @GetMapping("/oauth/kakao")
     public void redirectToKakaoLogin(HttpServletResponse response) throws IOException {
 
-        // ⭐ 카카오 로그인 창 URL (OAuth 규칙)
+        // ⭐ 카카오 로그인 URL 만들기
         String kakaoAuthUrl = "https://kauth.kakao.com/oauth/authorize"
-                + "?client_id=" + kakaoClientId             // 내 앱 REST API 키
-                + "&redirect_uri=" + kakaoRedirectUri       // 로그인 성공 후 돌아올 URL
-                + "&response_type=code"                     // code 방식 사용
-                + "&prompt=select_account";                  // 계정 선택창 강제 표시
+                + "?client_id=" + kakaoClientId
+                + "&redirect_uri=" + kakaoRedirectUri
+                + "&response_type=code"
+                + "&prompt=select_account"; // 계정 선택창 자동 표시
 
-        log.info("카카오 로그인 페이지로 리다이렉트: {}", kakaoAuthUrl);
+        log.info("[Kakao] Redirect URL = {}", kakaoAuthUrl);
 
-        // ⭐ 사용자 브라우저를 카카오 로그인 페이지로 이동
+        // ⭐ 카카오 로그인 화면으로 이동
         response.sendRedirect(kakaoAuthUrl);
     }
 
     /**
-     * 2️⃣ 카카오 로그인 후 카카오가 이 URL로 code 전달
+     * 2) 카카오 로그인 완료 후 → 카카오가 code를 이 URL로 전달
      * GET /social?code=xxxx
      */
-    @GetMapping("/social")
+    @GetMapping("/social/kakao")
     public void handleKakaoCallback(
-            @RequestParam("code") String code,  // 카카오가 넘겨주는 인가코드
+            @RequestParam("code") String code,
             HttpServletResponse response
     ) throws IOException {
 
-        try {
-            log.info("카카오 콜백 수신 - code: {}", code);
+        log.info("[Kakao] Callback code = {}", code);
 
-            // ⭐ code로 access_token 받고, 사용자 정보 조회하고, JWT 발급까지 완료
-            Map<String, Object> loginResult = oAuthService.loginWithKakao(code);
+        // ⭐ code → access_token → 사용자 정보 조회 → JWT 발급
+        Map<String, Object> loginResult = oAuthServiceImpl.loginWithKakao(code);
 
-            // ⭐ OAuthService에서 만들어준 데이터 꺼내기
-            String jwtToken = (String) loginResult.get("token");
-            String userName = (String) loginResult.get("userName");
-            String socialType = (String) loginResult.get("socialType");
-            String role = (String) loginResult.get("role");
+        // ⭐ 프론트로 전달할 값 구성
+        String redirectUrl = frontendUrl + "/login-success"
+                + "?token=" + URLEncoder.encode(loginResult.get("token").toString(), StandardCharsets.UTF_8)
+                + "&userName=" + URLEncoder.encode(loginResult.get("username").toString(), StandardCharsets.UTF_8)
+                + "&socialType=" + loginResult.get("socialType")
+                + "&role=" + loginResult.get("role");
 
-            log.info("JWT 토큰 발급 완료");
+        log.info("[Kakao] Redirect to Frontend = {}", redirectUrl);
 
-            // ⭐ React로 넘겨줄 주소 구성 (URL 인코딩 필수!)
-            String redirectUrl = frontendUrl + "/login-success"
-                    + "?token=" + URLEncoder.encode(jwtToken, StandardCharsets.UTF_8)
-                    + "&userName=" + URLEncoder.encode(userName, StandardCharsets.UTF_8)
-                    + "&socialType=" + socialType
-                    + "&role=" + role;
-
-            log.info("React로 리다이렉트: {}", redirectUrl);
-
-            // ⭐ 로그인 성공 후 React로 이동
-            response.sendRedirect(redirectUrl);
-
-        } catch (IllegalArgumentException e) {
-            // ❗ 카카오에서 이상한 code가 왔을 때
-            log.warn("카카오 로그인 실패 - 잘못된 요청: {}", e.getMessage());
-            response.sendRedirect(frontendUrl + "/login?error=invalid_request");
-
-        } catch (Exception e) {
-            // ❗ 서버 내부 오류
-            log.error("카카오 로그인 처리 중 오류 발생", e);
-            response.sendRedirect(frontendUrl + "/login?error=server_error");
-        }
+        // ⭐ React로 이동
+        response.sendRedirect(redirectUrl);
     }
 
+
+    // ========================================================
+    // 🔹 네이버 로그인
+    // ========================================================
+
+    @Value("${naver.clientId}")
+    private String naverClientId;
+
+    @Value("${naver.redirectUri}")
+    private String naverRedirectUri;
+
     /**
-     * ︎3️⃣ 네이버 로그인 (아직 구현 안 됨)
+     * 3) React → 네이버 로그인 페이지로 이동
+     * GET /oauth/naver
      */
     @GetMapping("/oauth/naver")
     public void redirectToNaverLogin(HttpServletResponse response) throws IOException {
-        log.info("네이버 로그인 요청 (미구현)");
 
-        // 구현 X → 에러 페이지로 이동
-        response.sendRedirect(frontendUrl + "/login?error=not_implemented");
+        // ⭐ CSRF 방지용 state 값
+        String state = UUID.randomUUID().toString();
+
+        // ⭐ 네이버 로그인 URL 만들기
+        String naverAuthUrl =
+                "https://nid.naver.com/oauth2.0/authorize"
+                        + "?response_type=code"
+                        + "&client_id=" + naverClientId
+                        + "&redirect_uri=" + naverRedirectUri
+                        + "&state=" + state;
+
+        log.info("[Naver] Redirect URL = {}", naverAuthUrl);
+
+        // ⭐ 네이버 로그인 화면으로 이동
+        response.sendRedirect(naverAuthUrl);
     }
 
     /**
-     * 4️⃣ 구글 로그인 (아직 구현 안 됨)
+     * 4) 네이버 로그인 완료 후 → 네이버가 code + state 전달
+     * GET /social/naver?code=xxx&state=yyy
+     */
+    @GetMapping("/social/naver")
+    public void handleNaverCallback(
+            @RequestParam("code") String code,
+            @RequestParam("state") String state,
+            HttpServletResponse response
+    ) throws IOException {
+
+        log.info("[Naver] Callback code = {}, state = {}", code, state);
+
+        // ⭐ code + state → access_token → 사용자 조회 → JWT 반환
+        Map<String, Object> loginResult = oAuthServiceImpl.loginWithNaver(code, state);
+
+        // ⭐ React로 전달할 값 구성
+        String redirectUrl = frontendUrl + "/login-success"
+                + "?token=" + URLEncoder.encode(loginResult.get("token").toString(), StandardCharsets.UTF_8)
+                + "&userName=" + URLEncoder.encode(loginResult.get("username").toString(), StandardCharsets.UTF_8)
+                + "&socialType=" + loginResult.get("socialType")
+                + "&role=" + loginResult.get("role");
+
+        log.info("[Naver] Redirect to Frontend = {}", redirectUrl);
+
+        // ⭐ React로 이동
+        response.sendRedirect(redirectUrl);
+    }
+
+    // ===============================
+    // ⭐ 구글 로그인
+    // ===============================
+
+    @Value("${google.clientId}")
+    private String googleClientId;
+
+    @Value("${google.redirectUri}")
+    private String googleRedirectUri;
+
+    @Value("${google.authUri}")
+    private String googleAuthUri;
+
+    /**
+     * React → 구글 로그인 페이지로 이동
+     * GET /oauth/google
      */
     @GetMapping("/oauth/google")
     public void redirectToGoogleLogin(HttpServletResponse response) throws IOException {
-        log.info("구글 로그인 요청 (미구현)");
 
-        // 구현 X → 에러 페이지로 이동
-        response.sendRedirect(frontendUrl + "/login?error=not_implemented");
+        // redirect_uri 인코딩 (쿼리스트링에 넣을 때 필수)
+        String encodedRedirectUri = URLEncoder.encode(googleRedirectUri, StandardCharsets.UTF_8);
+
+        String googleAuthUrl =
+                googleAuthUri
+                        + "?client_id=" + googleClientId
+                        + "&redirect_uri=" + encodedRedirectUri
+                        + "&response_type=code"
+                        + "&scope=openid%20email%20profile";
+
+        log.info("[Google] Redirect URL = {}", googleAuthUrl);
+
+        response.sendRedirect(googleAuthUrl);
     }
+
+    /**
+     * 구글 로그인 완료 후 콜백
+     * GET /social/google?code=xxx
+     */
+    @GetMapping("/social/google")
+    public void handleGoogleCallback(
+            @RequestParam("code") String code,
+            HttpServletResponse response
+    ) throws IOException {
+
+        log.info("[Google] Callback code = {}", code);
+
+        Map<String, Object> loginResult = oAuthServiceImpl.loginWithGoogle(code);
+
+        String redirectUrl = frontendUrl + "/login-success"
+                + "?token=" + URLEncoder.encode(loginResult.get("token").toString(), StandardCharsets.UTF_8)
+                + "&userName=" + URLEncoder.encode(loginResult.get("username").toString(), StandardCharsets.UTF_8)
+                + "&socialType=" + loginResult.get("socialType")
+                + "&role=" + loginResult.get("role");
+
+        log.info("[Google] Redirect to Frontend = {}", redirectUrl);
+
+        response.sendRedirect(redirectUrl);
+    }
+
+
+
+
 }
