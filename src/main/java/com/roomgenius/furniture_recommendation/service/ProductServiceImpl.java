@@ -36,6 +36,17 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductVO> selectAllProducts() {
-        return productMapper.selectAllProducts();  // 단일 쿼리 실행
+        return productMapper.selectAllProducts();
+    }
+
+    // 단일조회 메서드 추가 (오류 해결의 핵심)
+    @Override
+    public ProductVO getProductById(Integer productId) {
+        return productMapper.getProductById(productId);
+    }
+
+    @Override
+    public int deleteProductById(Integer productId) {
+        return productMapper.deleteProductById(productId);
     }
 }

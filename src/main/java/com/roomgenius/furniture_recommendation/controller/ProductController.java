@@ -20,6 +20,7 @@ public class ProductController {
 
     private final ProductService productService;
 
+    /** 상품 정보 등록 **/
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<?> insertProduct(
             @RequestPart("product") ProductDTO dto,
@@ -46,5 +47,41 @@ public class ProductController {
                 "products", list
         ));
     }
+    @GetMapping("/{productId}")
+    public ResponseEntity<?> getProductById(@PathVariable("productId") Integer productId) {
+
+        ProductVO product = productService.getProductById(productId);
+
+        if (product == null) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "success", false,
+                    "message", "해당 상품을 찾을 수 없습니다."
+            ));
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "data", product
+        ));
+    }
+
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<?> deleteProduct(@PathVariable Integer productId) {
+
+        int result = productService.deleteProductById(productId);
+
+        if (result == 0) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "success", false,
+                    "message", "삭제할 상품을 찾을 수 없습니다."
+            ));
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "상품이 성공적으로 삭제되었습니다."
+        ));
+    }
 
 }
+

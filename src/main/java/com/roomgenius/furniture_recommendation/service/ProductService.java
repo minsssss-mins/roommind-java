@@ -11,4 +11,10 @@ public interface ProductService {
 
     // ⭐ 상품 전체 조회
     List<ProductVO> selectAllProducts();
+
+    // ⭐ 상품 단일 조회 추가
+    ProductVO getProductById(Integer productId);
+
+    // ⭐ 단일 삭제 추가
+    int deleteProductById(Integer productId);
 }

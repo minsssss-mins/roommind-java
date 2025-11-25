@@ -15,5 +15,12 @@ public interface ProductMapper {
 
     // ⭐ 전체 상품 조회
     List<ProductVO> selectAllProducts();
+
+    // ⭐ 단일 상품 조회 추가
+    ProductVO getProductById(Integer productId);
+
+    // ⭐ 단일 삭제
+    int deleteProductById(Integer productId);
 }
+
 
