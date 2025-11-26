@@ -76,6 +76,9 @@ public class SecurityConfig {
                         // 관리자 전용
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
+                        // ⭐ 정적 이미지 허용 (이미지 접근 허용)
+                        .requestMatchers("/uploads/**").permitAll()
+
                         // 그 외는 인증 필요
                         .anyRequest().authenticated()
                 )

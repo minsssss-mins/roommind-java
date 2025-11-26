@@ -1,5 +1,6 @@
 package com.roomgenius.furniture_recommendation.service;
 
+import com.roomgenius.furniture_recommendation.entity.FileVO;
 import com.roomgenius.furniture_recommendation.entity.QnABoardDTO;
 import com.roomgenius.furniture_recommendation.entity.QnABoardVO;
 import com.roomgenius.furniture_recommendation.entity.UserVO;
@@ -18,6 +19,7 @@ import java.util.NoSuchElementException;
 @Service
 public class QnABoardServiceImpl implements QnABoardService {
 
+    private final FileService fileService;
     private final QnABoardMapper qnABoardMapper;
     private final UserMapper userMapper;
 
@@ -61,8 +63,19 @@ public class QnABoardServiceImpl implements QnABoardService {
     /** ==================== 전체 조회 ==================== */
     @Override
     public List<QnABoardVO> selectAll() {
-        return qnABoardMapper.selectAll();
+
+        // 1) 전체 게시글 가져오기
+        List<QnABoardVO> list = qnABoardMapper.selectAll();
+
+        // 2) 이미지 붙이기
+        for (QnABoardVO board : list) {
+            List<FileVO> images = fileService.getQnaFiles(board.getQnaBoardId());
+            board.setImages(images);  // ★ VO에 images 필드 미리 추가해야 함
+        }
+
+        return list;
     }
+
 
     /** ==================== 상세 조회 ==================== */
     @Override

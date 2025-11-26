@@ -58,7 +58,7 @@ public class OAuthController {
      * 2) 카카오 로그인 완료 후 → 카카오가 code를 이 URL로 전달
      * GET /social?code=xxxx
      */
-    @GetMapping("/social/kakao")
+    @GetMapping("/social")
     public void handleKakaoCallback(
             @RequestParam("code") String code,
             HttpServletResponse response

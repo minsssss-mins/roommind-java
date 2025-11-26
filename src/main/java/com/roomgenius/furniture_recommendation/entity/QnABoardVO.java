@@ -3,6 +3,7 @@ package com.roomgenius.furniture_recommendation.entity;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 게시글 VO (DB 조회 결과)
@@ -26,4 +27,6 @@ public class QnABoardVO {
 
     private LocalDateTime createdDate;  // created_date
     private LocalDateTime updatedDate;  // updated_date
+
+    private List<FileVO> images;
 }
