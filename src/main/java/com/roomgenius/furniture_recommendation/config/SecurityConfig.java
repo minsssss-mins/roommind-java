@@ -28,7 +28,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // ✅ CORS 설정
+    //  CORS 설정
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
@@ -47,18 +47,20 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // ✅ CORS 적용
+                //  CORS 적용
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                // ✅ CSRF 비활성화 (REST API용)
+                //  CSRF 비활성화 (REST API용)
                 .csrf(csrf -> csrf.disable())
 
-                // ✅ 세션 비활성화 (JWT 방식)
+                //  세션 비활성화 (JWT 방식)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                // ✅ URL별 권한 설정
+                //  URL별 권한 설정
                 .authorizeHttpRequests(auth -> auth
-                        // ⭐ 소셜 로그인 관련 URL 전체 허용
+
+
+                        //  소셜 로그인 관련 URL 전체 허용
                         .requestMatchers("/oauth/**", "/social/**").permitAll()
                         .requestMatchers("/admin/**").permitAll()
 
@@ -68,16 +70,18 @@ public class SecurityConfig {
                         // 회원가입, 로그인
                         .requestMatchers("/api/users/signup", "/api/users/login").permitAll()
 
+
                         // 게시판 GET은 누구나, 나머지는 인증 필요
-                        .requestMatchers(HttpMethod.GET, "/api/qnaboards/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/qnaboards/**").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/api/qnaboards/**").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/qnaboards/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/qnaboards/**","/api/community/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/qnaboards/**","/api/community/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/qnaboards/**","/api/community/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/qnaboards/**","/api/community/**").authenticated()
+
 
                         // 관리자 전용
-//                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        //.requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                        // ⭐ 정적 이미지 허용 (이미지 접근 허용)
+                        //  정적 이미지 허용 (이미지 접근 허용)
                         .requestMatchers("/uploads/**").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/admin/products/**").permitAll()
@@ -94,7 +98,7 @@ public class SecurityConfig {
                 )
 
 
-                // ✅ JWT 필터 등록 (UsernamePasswordAuthenticationFilter 앞에 추가)
+                //  JWT 필터 등록 (UsernamePasswordAuthenticationFilter 앞에 추가)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

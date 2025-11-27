@@ -24,6 +24,10 @@ public class OAuthController {
     @Value("${frontend.url:http://localhost:3000}")
     private String frontendUrl;
 
+    // 에러/성공 리다이렉트 경로 (필요에 따라 수정 가능)
+    private static final String LOGIN_SUCCESS_PATH = "/login-success";
+    private static final String LOGIN_ERROR_PATH   = "/login-error";
+
     // ========================================================
     // 🔹 카카오 로그인
     // ========================================================
@@ -55,31 +59,55 @@ public class OAuthController {
     }
 
     /**
-     * 2) 카카오 로그인 완료 후 → 카카오가 code를 이 URL로 전달
-     * GET /social?code=xxxx
+     * 2) 카카오 로그인 완료 후 → 카카오가 code 전달
+     *    실패/취소 시 error 파라미터 전달 가능
+     * 예) /social?code=xxx
+     *     /social?error=access_denied&error_description=...
      */
     @GetMapping("/social")
     public void handleKakaoCallback(
-            @RequestParam("code") String code,
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String error,
+            @RequestParam(name = "error_description", required = false) String errorDescription,
             HttpServletResponse response
     ) throws IOException {
 
+        // 🔥 1) 카카오 로그인 취소 또는 오류
+        if (error != null) {
+            log.warn("[Kakao] Login canceled or failed: {} - {}", error, errorDescription);
+
+            String redirectUrl = frontendUrl + LOGIN_ERROR_PATH
+                    + "?provider=kakao"
+                    + "&reason=cancel";
+
+            response.sendRedirect(redirectUrl);
+            return;
+        }
+
         log.info("[Kakao] Callback code = {}", code);
 
-        // ⭐ code → access_token → 사용자 정보 조회 → JWT 발급
-        Map<String, Object> loginResult = oAuthServiceImpl.loginWithKakao(code);
+        try {
+            // 🔥 2) 정상 로그인 처리
+            Map<String, Object> loginResult = oAuthServiceImpl.loginWithKakao(code);
 
-        // ⭐ 프론트로 전달할 값 구성
-        String redirectUrl = frontendUrl + "/login-success"
-                + "?token=" + URLEncoder.encode(loginResult.get("token").toString(), StandardCharsets.UTF_8)
-                + "&userName=" + URLEncoder.encode(loginResult.get("username").toString(), StandardCharsets.UTF_8)
-                + "&socialType=" + loginResult.get("socialType")
-                + "&role=" + loginResult.get("role");
+            String redirectUrl = frontendUrl + LOGIN_SUCCESS_PATH
+                    + "?token=" + URLEncoder.encode(loginResult.get("token").toString(), StandardCharsets.UTF_8)
+                    + "&userName=" + URLEncoder.encode(loginResult.get("username").toString(), StandardCharsets.UTF_8)
+                    + "&socialType=" + loginResult.get("socialType")
+                    + "&role=" + loginResult.get("role");
 
-        log.info("[Kakao] Redirect to Frontend = {}", redirectUrl);
+            log.info("[Kakao] Redirect to Frontend = {}", redirectUrl);
+            response.sendRedirect(redirectUrl);
 
-        // ⭐ React로 이동
-        response.sendRedirect(redirectUrl);
+        } catch (Exception e) {
+            log.error("[Kakao] 로그인 처리 중 오류", e);
+
+            String redirectUrl = frontendUrl + LOGIN_ERROR_PATH
+                    + "?provider=kakao"
+                    + "&reason=error";
+
+            response.sendRedirect(redirectUrl);
+        }
     }
 
 
@@ -100,7 +128,7 @@ public class OAuthController {
     @GetMapping("/oauth/naver")
     public void redirectToNaverLogin(HttpServletResponse response) throws IOException {
 
-        // ⭐ CSRF 방지용 state 값
+        // ⭐ CSRF 방지용 state 값 (실제 서비스에서는 세션/Redis 등에 저장해서 검증하는 게 베스트)
         String state = UUID.randomUUID().toString();
 
         // ⭐ 네이버 로그인 URL 만들기
@@ -109,42 +137,67 @@ public class OAuthController {
                         + "?response_type=code"
                         + "&client_id=" + naverClientId
                         + "&redirect_uri=" + naverRedirectUri
-                        + "&state=" + state;
+                        + "&state=" + state
+                        + "&auth_type=reprompt";  // ⭐ 네이버 강제 로그인창
 
         log.info("[Naver] Redirect URL = {}", naverAuthUrl);
 
-        // ⭐ 네이버 로그인 화면으로 이동
         response.sendRedirect(naverAuthUrl);
     }
 
     /**
      * 4) 네이버 로그인 완료 후 → 네이버가 code + state 전달
+     *    실패/취소 시 error 파라미터 전달
      * GET /social/naver?code=xxx&state=yyy
+     * GET /social/naver?error=access_denied&error_description=...&state=...
      */
     @GetMapping("/social/naver")
     public void handleNaverCallback(
-            @RequestParam("code") String code,
-            @RequestParam("state") String state,
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String state,
+            @RequestParam(required = false) String error,
+            @RequestParam(name = "error_description", required = false) String errorDescription,
             HttpServletResponse response
     ) throws IOException {
 
+        // 🔥 1) 네이버 로그인 취소 또는 오류 처리
+        if (error != null) {
+            log.warn("[Naver] Login canceled or failed: {} - {}", error, errorDescription);
+
+            String redirectUrl = frontendUrl + LOGIN_ERROR_PATH
+                    + "?provider=naver"
+                    + "&reason=cancel";
+
+            response.sendRedirect(redirectUrl);
+            return;
+        }
+
         log.info("[Naver] Callback code = {}, state = {}", code, state);
 
-        // ⭐ code + state → access_token → 사용자 조회 → JWT 반환
-        Map<String, Object> loginResult = oAuthServiceImpl.loginWithNaver(code, state);
+        try {
+            // 🔥 2) 정상 로그인 처리
+            Map<String, Object> loginResult = oAuthServiceImpl.loginWithNaver(code, state);
 
-        // ⭐ React로 전달할 값 구성
-        String redirectUrl = frontendUrl + "/login-success"
-                + "?token=" + URLEncoder.encode(loginResult.get("token").toString(), StandardCharsets.UTF_8)
-                + "&userName=" + URLEncoder.encode(loginResult.get("username").toString(), StandardCharsets.UTF_8)
-                + "&socialType=" + loginResult.get("socialType")
-                + "&role=" + loginResult.get("role");
+            String redirectUrl = frontendUrl + LOGIN_SUCCESS_PATH
+                    + "?token=" + URLEncoder.encode(loginResult.get("token").toString(), StandardCharsets.UTF_8)
+                    + "&userName=" + URLEncoder.encode(loginResult.get("username").toString(), StandardCharsets.UTF_8)
+                    + "&socialType=" + loginResult.get("socialType")
+                    + "&role=" + loginResult.get("role");
 
-        log.info("[Naver] Redirect to Frontend = {}", redirectUrl);
+            log.info("[Naver] Redirect to Frontend = {}", redirectUrl);
+            response.sendRedirect(redirectUrl);
 
-        // ⭐ React로 이동
-        response.sendRedirect(redirectUrl);
+        } catch (Exception e) {
+            log.error("[Naver] 로그인 처리 중 오류", e);
+
+            String redirectUrl = frontendUrl + LOGIN_ERROR_PATH
+                    + "?provider=naver"
+                    + "&reason=error";
+
+            response.sendRedirect(redirectUrl);
+        }
     }
+
 
     // ===============================
     // ⭐ 구글 로그인
@@ -174,7 +227,8 @@ public class OAuthController {
                         + "?client_id=" + googleClientId
                         + "&redirect_uri=" + encodedRedirectUri
                         + "&response_type=code"
-                        + "&scope=openid%20email%20profile";
+                        + "&scope=openid%20email%20profile"
+                        + "&prompt=select_account"; // ⭐ 구글 계정 선택창
 
         log.info("[Google] Redirect URL = {}", googleAuthUrl);
 
@@ -184,29 +238,52 @@ public class OAuthController {
     /**
      * 구글 로그인 완료 후 콜백
      * GET /social/google?code=xxx
+     * 실패/취소 시 /social/google?error=access_denied&error_description=...
      */
     @GetMapping("/social/google")
     public void handleGoogleCallback(
-            @RequestParam("code") String code,
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String error,
+            @RequestParam(name = "error_description", required = false) String errorDescription,
             HttpServletResponse response
     ) throws IOException {
 
+        // 🔥 1) 구글 로그인 취소/오류
+        if (error != null) {
+            log.warn("[Google] Login canceled or failed: {} - {}", error, errorDescription);
+
+            String redirectUrl = frontendUrl + LOGIN_ERROR_PATH
+                    + "?provider=google"
+                    + "&reason=cancel";
+
+            response.sendRedirect(redirectUrl);
+            return;
+        }
+
         log.info("[Google] Callback code = {}", code);
 
-        Map<String, Object> loginResult = oAuthServiceImpl.loginWithGoogle(code);
+        try {
+            // 🔥 2) 정상 로그인 처리
+            Map<String, Object> loginResult = oAuthServiceImpl.loginWithGoogle(code);
 
-        String redirectUrl = frontendUrl + "/login-success"
-                + "?token=" + URLEncoder.encode(loginResult.get("token").toString(), StandardCharsets.UTF_8)
-                + "&userName=" + URLEncoder.encode(loginResult.get("username").toString(), StandardCharsets.UTF_8)
-                + "&socialType=" + loginResult.get("socialType")
-                + "&role=" + loginResult.get("role");
+            String redirectUrl = frontendUrl + LOGIN_SUCCESS_PATH
+                    + "?token=" + URLEncoder.encode(loginResult.get("token").toString(), StandardCharsets.UTF_8)
+                    + "&userName=" + URLEncoder.encode(loginResult.get("username").toString(), StandardCharsets.UTF_8)
+                    + "&socialType=" + loginResult.get("socialType")
+                    + "&role=" + loginResult.get("role");
 
-        log.info("[Google] Redirect to Frontend = {}", redirectUrl);
+            log.info("[Google] Redirect to Frontend = {}", redirectUrl);
+            response.sendRedirect(redirectUrl);
 
-        response.sendRedirect(redirectUrl);
+        } catch (Exception e) {
+            log.error("[Google] 로그인 처리 중 오류", e);
+
+            String redirectUrl = frontendUrl + LOGIN_ERROR_PATH
+                    + "?provider=google"
+                    + "&reason=error";
+
+            response.sendRedirect(redirectUrl);
+        }
     }
-
-
-
 
 }
