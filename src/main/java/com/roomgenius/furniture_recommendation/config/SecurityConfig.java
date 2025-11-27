@@ -60,6 +60,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // ⭐ 소셜 로그인 관련 URL 전체 허용
                         .requestMatchers("/oauth/**", "/social/**").permitAll()
+                        .requestMatchers("/admin/**").permitAll()
 
                         // 네이버 검색 api
                         .requestMatchers("/api/naver/**").permitAll()
@@ -76,11 +77,11 @@ public class SecurityConfig {
                         // 관리자 전용
 //                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                        .requestMatchers("/api/admin/**").permitAll()
                         // ⭐ 정적 이미지 허용 (이미지 접근 허용)
                         .requestMatchers("/uploads/**").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/admin/products/**").permitAll()
+
 
                         // 그 외는 인증 필요
                         .anyRequest().authenticated()

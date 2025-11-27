@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.roomgenius.furniture_recommendation.mapper.AdminUserMapper">
+
+    <!-- 회원 조회 (검색 + 권한 필터) -->
+    <select id="getUsers" resultType="com.roomgenius.furniture_recommendation.entity.UserDTO">
+        SELECT
+        user_id AS userId,
+        user_name AS userName,
+        phone,
+        address,
+        email,
+        role,
+        created_date AS createdDate
+        FROM User
+        WHERE 1=1
+        <if test="keyword != null and keyword != ''">
+            AND (user_name LIKE CONCAT('%', #{keyword}, '%')
+            OR email LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+
+        <if test="role != null and role != ''">
+            AND role = #{role}
+        </if>
+
+        ORDER BY
+        <choose>
+            <when test="sort == 'created_desc'"> created_date DESC </when>
+            <when test="sort == 'created_asc'"> created_date ASC </when>
+            <when test="sort == 'id_asc'"> user_id ASC </when>
+            <when test="sort == 'id_desc'"> user_id DESC </when>
+            <when test="sort == 'name_asc'"> user_name ASC </when>
+            <when test="sort == 'name_desc'"> user_name DESC </when>
+            <otherwise> created_date DESC </otherwise>
+        </choose>
+
+
+    </select>
+
+
+    <!-- 권한 변경 -->
+    <update id="updateUserRole">
+        UPDATE User
+        SET role = #{role}
+        WHERE user_id = #{id}
+    </update>
+
+
+
+</mapper>
