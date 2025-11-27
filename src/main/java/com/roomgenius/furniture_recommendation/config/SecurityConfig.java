@@ -81,9 +81,15 @@ public class SecurityConfig {
                         .requestMatchers("/uploads/**").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/admin/products/**").permitAll()
+                                .requestMatchers(
+                                        "/", "/admin/**",
+                                        "/mypage/**", "/community/**",
+                                        "/popular/**", "/product/**"
+                                ).permitAll()
 
 
-                        // 그 외는 인증 필요
+
+                                // 그 외는 인증 필요
                         .anyRequest().authenticated()
                 )
 
