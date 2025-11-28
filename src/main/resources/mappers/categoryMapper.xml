@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.roomgenius.furniture_recommendation.mapper.CategoryMapper">
+
+    <select id="selectAllCategories"
+            resultType="com.roomgenius.furniture_recommendation.entity.CategoryVO">
+
+        SELECT
+        category_id,
+        major_category,
+        middle_category,
+        created_date,
+        updated_date
+        FROM category
+        ORDER BY category_id ASC
+
+    </select>
+
+</mapper>

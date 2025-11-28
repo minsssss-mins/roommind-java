@@ -8,7 +8,7 @@
     <!-- ========================= -->
     <!-- 상품 전체 조회 (이미지 포함) -->
     <!-- ========================= -->
-    <select id="selectAllProducts" resultType="com.roomgenius.furniture_recommendation.entity.ProductVO">
+    <select id="selectAllProducts" resultType="com.roomgenius.furniture_recommendation.entity.ProductVO" >
         SELECT
         p.product_id,
         p.category_id,
@@ -94,21 +94,34 @@
         p.brand,
         p.created_date,
         p.updated_date,
+
+        --  파일
         f.save_dir,
-        f.file_name
+        f.file_name,
+
+        --  카테고리 JOIN (중분류 + 대분류)
+        c.middle_category AS middleCategory,
+        c.major_category AS majorCategory
 
         FROM Product p
+
         LEFT JOIN File f
         ON p.product_id = f.product_id
         AND f.file_type = 0
+
+        LEFT JOIN Category c
+        ON p.category_id = c.category_id
+
         WHERE p.product_id = #{productId}
     </select>
+
+
 
 
     <!-- ========================= -->
     <!-- 상품 등록 -->
     <!-- ========================= -->
-    <insert id="insertProduct" parameterType="com.roomgenius.furniture_recommendation.entity.ProductDTO">
+    <insert id="insertProduct" parameterType="com.roomgenius.furniture_recommendation.entity.ProductDTO"  useGeneratedKeys="true" keyProperty="productId">
         INSERT INTO Product (
         category_id,
         product_name,
