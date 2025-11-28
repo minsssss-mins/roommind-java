@@ -53,8 +53,8 @@ public class FileServiceImpl implements FileService {
 
         String ext = lower.substring(dot + 1);
         if (!(ext.equals("jpg") || ext.equals("jpeg") || ext.equals("png")
-                || ext.equals("webp") || ext.equals("gif"))) {
-            throw new IllegalArgumentException("이미지 파일만 업로드 가능합니다. (jpg, jpeg, png, webp, gif)");
+                || ext.equals("webp") || ext.equals("gif") || ext.equals("avif"))) {
+            throw new IllegalArgumentException("이미지 파일만 업로드 가능합니다. (jpg, jpeg, png, webp, gif,avif)");
         }
 
         // 3) MIME 타입 체크
