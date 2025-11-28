@@ -70,13 +70,11 @@ public class SecurityConfig {
                         // 회원가입, 로그인
                         .requestMatchers("/api/users/signup", "/api/users/login").permitAll()
 
-
                         // 게시판 GET은 누구나, 나머지는 인증 필요
                         .requestMatchers(HttpMethod.GET, "/api/qnaboards/**","/api/community/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/qnaboards/**","/api/community/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/qnaboards/**","/api/community/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/qnaboards/**","/api/community/**").authenticated()
-
 
                         // 관리자 전용
                         //.requestMatchers("/api/admin/**").hasRole("ADMIN")
