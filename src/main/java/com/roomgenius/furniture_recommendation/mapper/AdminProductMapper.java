@@ -18,11 +18,13 @@ public interface AdminProductMapper {
 
     void insertProduct(ProductDTO dto);
 
-    void updateProduct(ProductDTO dto);
+    Integer updateProduct(ProductDTO dto);
 
-    void deleteProduct(Integer productId);
+    Integer deleteProduct(Integer productId);
 
     Integer getLastInsertId();
 
     void insertFile(FileVO vo);
+
+    List<FileVO> selectFilesByProductId(Integer productId);
 }

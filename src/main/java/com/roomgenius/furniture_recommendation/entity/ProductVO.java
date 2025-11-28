@@ -2,6 +2,8 @@ package com.roomgenius.furniture_recommendation.entity;
 
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @ToString
@@ -23,5 +25,5 @@ public class ProductVO {
     private String middleCategory;
 
 
-    private String imageUrl;
+    private List<FileVO> images;
 }
