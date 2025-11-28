@@ -4,9 +4,10 @@ import lombok.Data;
 
 @Data
 public class CategoryVO {
-    private Integer category_id;
-    private String major_category;
-    private String middle_category;
-    private String created_date;
-    private String updated_date;
+    private Integer categoryId;
+    private String majorCategory;
+    private String middleCategory;
+    private String createdDate;
+    private String updatedDate;
+
 }

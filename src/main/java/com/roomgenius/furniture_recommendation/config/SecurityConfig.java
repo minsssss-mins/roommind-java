@@ -63,6 +63,8 @@ public class SecurityConfig {
                         //  소셜 로그인 관련 URL 전체 허용
                         .requestMatchers("/oauth/**", "/social/**").permitAll()
                         .requestMatchers("/admin/**").permitAll()
+                        .requestMatchers("/api/categories/**").permitAll()
+
 
                         // 네이버 검색 api
                         .requestMatchers("/api/naver/**").permitAll()

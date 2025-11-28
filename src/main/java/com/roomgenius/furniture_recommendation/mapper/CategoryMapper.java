@@ -7,5 +7,17 @@ import java.util.List;
 
 @Mapper
 public interface CategoryMapper {
+
     List<CategoryVO> selectAllCategories();
+
+    CategoryVO getCategoryById(Integer categoryId);
+
+    String getCategoryName(Integer categoryId);
+
+    int insertCategory(CategoryVO vo);
+
+    int updateCategory(CategoryVO vo);
+
+    int deleteCategory(Integer categoryId);
 }
+

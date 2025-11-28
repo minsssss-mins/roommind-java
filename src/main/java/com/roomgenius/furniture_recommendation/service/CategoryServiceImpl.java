@@ -17,4 +17,30 @@ public class CategoryServiceImpl implements CategoryService {
     public List<CategoryVO> getAllCategories() {
         return categoryMapper.selectAllCategories();
     }
+
+    @Override
+    public CategoryVO getCategoryById(Integer categoryId) {
+        return categoryMapper.getCategoryById(categoryId);
+    }
+
+    @Override
+    public String getCategoryName(Integer categoryId) {
+        return categoryMapper.getCategoryName(categoryId);
+    }
+
+    @Override
+    public int insertCategory(CategoryVO vo) {
+        return categoryMapper.insertCategory(vo);
+    }
+
+    @Override
+    public int updateCategory(CategoryVO vo) {
+        return categoryMapper.updateCategory(vo);
+    }
+
+    @Override
+    public int deleteCategory(Integer categoryId) {
+        return categoryMapper.deleteCategory(categoryId);
+    }
 }
+
