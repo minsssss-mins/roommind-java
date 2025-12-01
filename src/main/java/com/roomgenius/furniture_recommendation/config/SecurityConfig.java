@@ -64,6 +64,9 @@ public class SecurityConfig {
                         .requestMatchers("/oauth/**", "/social/**").permitAll()
                         .requestMatchers("/admin/**").permitAll()
                         .requestMatchers("/api/categories/**").permitAll()
+                        .requestMatchers("/api/admin/categories/**").permitAll()
+                        .requestMatchers("/api/admin/products/**").permitAll()
+
 
 
                         // 네이버 검색 api
