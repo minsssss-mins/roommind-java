@@ -5,7 +5,9 @@
 
 <mapper namespace="com.roomgenius.furniture_recommendation.mapper.QnABoardMapper">
 
-    <!-- 게시글 등록 -->
+    <!-- ============================= -->
+    <!-- 1. 사용자 등록 -->
+    <!-- ============================= -->
     <insert id="insert"
             parameterType="com.roomgenius.furniture_recommendation.entity.QnABoardVO"
             useGeneratedKeys="true"
@@ -15,20 +17,26 @@
         user_id,
         title,
         content,
+        answer,
         created_date,
-        updated_date
+        updated_date,
+        answered_date
         )
         VALUES (
         #{userId},
         #{title},
         #{content},
+        #{answer},
         NOW(),
-        NOW()
+        NOW(),
+        NULL
         );
     </insert>
 
 
-    <!-- 게시글 전체 조회 (작성자 이름 포함) -->
+    <!-- ============================= -->
+    <!-- 2. 전체 조회 (관리자 & 일반 공용) -->
+    <!-- ============================= -->
     <select id="selectAll"
             resultType="com.roomgenius.furniture_recommendation.entity.QnABoardVO">
         SELECT
@@ -36,8 +44,10 @@
         q.user_id      AS userId,
         q.title        AS title,
         q.content      AS content,
+        q.answer       AS answer,
         q.created_date AS createdDate,
         q.updated_date AS updatedDate,
+        q.answered_date AS answeredDate,
         u.user_name    AS userName,
         u.email        AS email
         FROM QnABoard q
@@ -45,39 +55,74 @@
         ORDER BY q.qna_board_id DESC
     </select>
 
-    <!-- 게시글 상세 조회 -->
+
+    <!-- ============================= -->
+    <!-- 3. 단일 조회 -->
+    <!-- ============================= -->
     <select id="selectById"
             parameterType="Integer"
             resultType="com.roomgenius.furniture_recommendation.entity.QnABoardVO">
+
         SELECT
         q.qna_board_id AS qnaBoardId,
         q.user_id      AS userId,
         q.title        AS title,
         q.content      AS content,
+        q.answer       AS answer,
         q.created_date AS createdDate,
         q.updated_date AS updatedDate,
+        q.answered_date AS answeredDate,
         u.user_name    AS userName,
         u.email        AS email
         FROM QnABoard q
         JOIN User u ON q.user_id = u.user_id
-        WHERE q.qna_board_id = #{qnaBoardId}
+        WHERE q.qna_board_id = #{qnaId}
     </select>
 
-    <!-- 게시글 수정 -->
+
+    <!-- ============================= -->
+    <!-- 4. 사용자 수정 -->
+    <!-- ============================= -->
     <update id="update"
             parameterType="com.roomgenius.furniture_recommendation.entity.QnABoardVO">
         UPDATE QnABoard
         SET
-        title        = #{title},
-        content      = #{content},
+        title = #{title},
+        content = #{content},
         updated_date = NOW()
         WHERE qna_board_id = #{qnaBoardId}
+        AND user_id = #{userId}
     </update>
 
-    <!-- 게시글 삭제 -->
-    <delete id="delete" parameterType="Integer">
+
+    <!-- ============================= -->
+    <!-- 5. 사용자 삭제 -->
+    <!-- ============================= -->
+    <delete id="delete">
         DELETE FROM QnABoard
-        WHERE qna_board_id = #{qnaBoardId}
+        WHERE qna_board_id = #{qnaId}
+        AND user_id = #{userId}
+    </delete>
+
+
+    <!-- ============================= -->
+    <!-- 6. 관리자 답변 등록/수정 -->
+    <!-- ============================= -->
+    <update id="updateAnswer">
+        UPDATE QnABoard
+        SET
+        answer = #{answer},
+        answered_date = NOW()
+        WHERE qna_board_id = #{qnaId}
+    </update>
+
+
+    <!-- ============================= -->
+    <!-- 7. 관리자 삭제 -->
+    <!-- ============================= -->
+    <delete id="deleteAdmin">
+        DELETE FROM QnABoard
+        WHERE qna_board_id = #{qnaId}
     </delete>
 
 </mapper>
