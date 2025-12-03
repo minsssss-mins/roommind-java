@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
 
     // 로그인
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public UserDTO login(UserDTO dto) {
         UserVO user = userMapper.findByEmail(dto.getEmail());
         if (user == null || !passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
