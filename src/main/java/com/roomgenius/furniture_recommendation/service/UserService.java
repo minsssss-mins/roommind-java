@@ -16,4 +16,6 @@ public interface UserService {
 
     // ⭐ 이메일로 Member 조회 (QnA 게시판에서 필수)
     UserVO findByEmail(String email);
+
+    UserDTO getUserByEmail(String email);
 }

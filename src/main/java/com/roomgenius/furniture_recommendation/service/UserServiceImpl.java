@@ -5,6 +5,7 @@ import com.roomgenius.furniture_recommendation.entity.UserDTO;
 import com.roomgenius.furniture_recommendation.entity.UserVO;
 import com.roomgenius.furniture_recommendation.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -99,4 +100,26 @@ public class UserServiceImpl implements UserService {
         }
         return user;
     }
+
+    @Override
+    public UserDTO getUserByEmail(String email) {
+
+        UserVO user = userMapper.findByEmail(email);
+        if (user == null) {
+            throw new IllegalArgumentException("회원을 찾을 수 없습니다.");
+        }
+
+        return UserDTO.builder()
+                .userId(user.getUserId())
+                .userName(user.getUserName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .address(user.getAddress())
+                .role(user.getRole())
+                .createdDate(user.getCreatedDate())
+                .updateDate(user.getUpdatedDate())
+                .build();
+    }
+
+
 }

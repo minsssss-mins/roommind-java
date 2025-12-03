@@ -57,4 +57,18 @@ public class UserController {
 
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/email/{email}")
+    public ResponseEntity<Map<String, Object>> getUserByEmail(@PathVariable String email) {
+        UserDTO response = userService.getUserByEmail(email);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("data", response);
+
+        return ResponseEntity.ok(result);
+    }
+
+
+
 }
