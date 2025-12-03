@@ -121,5 +121,47 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+    @Override
+    @Transactional
+    public UserDTO updateUser(UserDTO dto) {
+        UserVO user = userMapper.findByEmail(dto.getEmail());
+        if (user == null) {
+            throw new IllegalArgumentException("회원을 찾을 수 없습니다");
+        }
+
+        user.setUserName(dto.getUserName());
+        user.setPhone(dto.getPhone());
+
+        userMapper.updateUser(user);
+
+        return UserDTO.builder()
+                .userId(user.getUserId())
+                .userName(user.getUserName())
+                .phone(user.getPhone())
+                .address(user.getAddress())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .createdDate(user.getCreatedDate())
+                .updateDate(user.getUpdatedDate())
+                .build();
+    }
+
+
+    @Override
+    @Transactional
+    public void changePassword(String email, String currentPw, String newPw) {
+        UserVO user = userMapper.findByEmail(email);
+
+        if (!passwordEncoder.matches(currentPw, user.getPassword())) {
+            throw new IllegalArgumentException("현재 비밀번호가 틀렸습니다");
+        }
+
+        String encoded = passwordEncoder.encode(newPw);
+        user.setPassword(encoded);
+
+        userMapper.updatePassword(user);
+    }
+
+
 
 }

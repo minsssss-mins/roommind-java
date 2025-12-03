@@ -24,4 +24,8 @@ public interface UserMapper {
             @Param("socialId") String socialId,
             @Param("socialType") String socialType
     );
+
+    void updateUser(UserVO user);
+
+    void updatePassword(UserVO user);
 }

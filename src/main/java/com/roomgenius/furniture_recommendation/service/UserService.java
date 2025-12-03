@@ -18,4 +18,8 @@ public interface UserService {
     UserVO findByEmail(String email);
 
     UserDTO getUserByEmail(String email);
+
+    UserDTO updateUser(UserDTO dto);
+
+    void changePassword(String email, String currentPw, String newPw);
 }
