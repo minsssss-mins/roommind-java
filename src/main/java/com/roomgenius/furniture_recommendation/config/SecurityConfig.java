@@ -54,9 +54,15 @@ public class SecurityConfig {
 
                         // 소셜 로그인 관련 URL 전체 허용
                         .requestMatchers("/oauth/**", "/social/**").permitAll()
+
                         .requestMatchers("/admin/**").permitAll()
+
+                        //카테고리 crud허용 (관리자 포함)
                         .requestMatchers("/api/categories/**").permitAll()
                         .requestMatchers("/api/admin/categories/**").permitAll()
+
+                        // 상품 crud 허용  (관리자 포함)
+                        .requestMatchers("/api/admin/product/**").permitAll()
                         .requestMatchers("/api/admin/products/**").permitAll()
 
                         // 네이버 검색 api

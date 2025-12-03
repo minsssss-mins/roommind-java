@@ -36,6 +36,21 @@ public class ProductController {
         ));
     }
 
+    /**
+     * 검색 + 정렬 + 카테고리 필터 + 전체 조회 통합
+     * GET /api/admin/products?keyword=&sort=&major=&middle=
+     */
+
+    @GetMapping("/filter")
+    public List<ProductVO> listProducts(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "latest") String sort,
+            @RequestParam(required = false) String major,
+            @RequestParam(required = false) String middle
+    ) {
+        return productService.selectFilteredProducts(keyword, sort, major, middle);
+    }
+
     /** ⭐ 상품 전체 조회 **/
     @GetMapping
     public ResponseEntity<?> selectAllProducts() {

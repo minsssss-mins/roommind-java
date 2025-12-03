@@ -54,6 +54,23 @@ public class ProductServiceImpl implements ProductService {
         return list;
     }
 
+    /** ===========================
+     *  필터 상품 조회 (검색/정렬/대분류/중분류)
+     * =========================== */
+    @Override
+    public List<ProductVO> selectFilteredProducts(String keyword, String sort, String major, String middle) {
+
+        List<ProductVO> products = productMapper.selectFilteredProducts(
+                keyword,
+                sort,
+                major,
+                middle
+        );
+
+        attachImages(products);
+        return products;
+    }
+
     /* 단일 상품 조회 */
     @Override
     public ProductVO getProductById(Integer productId) {
