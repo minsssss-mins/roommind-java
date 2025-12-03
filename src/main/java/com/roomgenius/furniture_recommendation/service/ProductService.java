@@ -9,6 +9,14 @@ public interface ProductService {
     // 상품 등록
     Integer insertProduct(ProductDTO dto);
 
+    /** 필터 검색 (검색 + 정렬 + 대분류/중분류) */
+    List<ProductVO> selectFilteredProducts(
+            String keyword,
+            String sort,
+            String major,
+            String middle
+    );
+
     // ⭐ 상품 전체 조회
     List<ProductVO> selectAllProducts();
 
