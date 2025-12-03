@@ -5,6 +5,66 @@
 
 <mapper namespace="com.roomgenius.furniture_recommendation.mapper.ProductMapper">
 
+
+    <!-- ========================= -->
+    <!-- 필터 검색 (검색 + 정렬 + 대분류/중분류) -->
+    <!-- ========================= -->
+    <select id="selectFilteredProducts" resultType="com.roomgenius.furniture_recommendation.entity.ProductVO">
+        SELECT
+        p.product_id,
+        p.category_id,
+        p.product_name,
+        p.original_price,
+        p.sale_price,
+        p.stock,
+        p.description,
+        p.brand,
+        p.created_date,
+        p.updated_date,
+        f.save_dir,
+        f.file_name,
+        c.major_category,
+        c.middle_category
+        FROM Product p
+        LEFT JOIN File f
+        ON p.product_id = f.product_id
+        AND f.file_type = 0
+        LEFT JOIN Category c
+        ON p.category_id = c.category_id
+        WHERE 1=1
+
+        <!-- 검색 -->
+        <if test="keyword != null and keyword != ''">
+            AND p.product_name LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+
+        <!-- 대분류 -->
+        <if test="major != null and major != ''">
+            AND c.major_category = #{major}
+        </if>
+
+        <!-- 중분류 -->
+        <if test="middle != null and middle != ''">
+            AND c.middle_category = #{middle}
+        </if>
+
+        <!-- 정렬 -->
+        <choose>
+            <when test="sort == 'oldest'">
+                ORDER BY p.product_id ASC
+            </when>
+            <when test="sort == 'high-price'">
+                ORDER BY p.sale_price DESC
+            </when>
+            <when test="sort == 'low-price'">
+                ORDER BY p.sale_price ASC
+            </when>
+            <otherwise>
+                ORDER BY p.product_id DESC
+            </otherwise>
+        </choose>
+    </select>
+
     <!-- 상품 등록 -->
     <insert id="insertProduct"
             parameterType="com.roomgenius.furniture_recommendation.entity.ProductDTO"
