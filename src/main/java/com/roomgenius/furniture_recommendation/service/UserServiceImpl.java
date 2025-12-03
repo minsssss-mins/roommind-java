@@ -5,6 +5,7 @@ import com.roomgenius.furniture_recommendation.entity.UserDTO;
 import com.roomgenius.furniture_recommendation.entity.UserVO;
 import com.roomgenius.furniture_recommendation.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -99,4 +100,68 @@ public class UserServiceImpl implements UserService {
         }
         return user;
     }
+
+    @Override
+    public UserDTO getUserByEmail(String email) {
+
+        UserVO user = userMapper.findByEmail(email);
+        if (user == null) {
+            throw new IllegalArgumentException("회원을 찾을 수 없습니다.");
+        }
+
+        return UserDTO.builder()
+                .userId(user.getUserId())
+                .userName(user.getUserName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .address(user.getAddress())
+                .role(user.getRole())
+                .createdDate(user.getCreatedDate())
+                .updateDate(user.getUpdatedDate())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public UserDTO updateUser(UserDTO dto) {
+        UserVO user = userMapper.findByEmail(dto.getEmail());
+        if (user == null) {
+            throw new IllegalArgumentException("회원을 찾을 수 없습니다");
+        }
+
+        user.setUserName(dto.getUserName());
+        user.setPhone(dto.getPhone());
+
+        userMapper.updateUser(user);
+
+        return UserDTO.builder()
+                .userId(user.getUserId())
+                .userName(user.getUserName())
+                .phone(user.getPhone())
+                .address(user.getAddress())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .createdDate(user.getCreatedDate())
+                .updateDate(user.getUpdatedDate())
+                .build();
+    }
+
+
+    @Override
+    @Transactional
+    public void changePassword(String email, String currentPw, String newPw) {
+        UserVO user = userMapper.findByEmail(email);
+
+        if (!passwordEncoder.matches(currentPw, user.getPassword())) {
+            throw new IllegalArgumentException("현재 비밀번호가 틀렸습니다");
+        }
+
+        String encoded = passwordEncoder.encode(newPw);
+        user.setPassword(encoded);
+
+        userMapper.updatePassword(user);
+    }
+
+
+
 }

@@ -57,4 +57,44 @@ public class UserController {
 
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/email/{email}")
+    public ResponseEntity<Map<String, Object>> getUserByEmail(@PathVariable String email) {
+        UserDTO response = userService.getUserByEmail(email);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("data", response);
+
+        return ResponseEntity.ok(result);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<Map<String, Object>> updateUser(@RequestBody UserDTO dto) {
+        UserDTO updated = userService.updateUser(dto);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("data", updated);
+
+        return ResponseEntity.ok(result);
+    }
+
+    // 비밀번호 변경
+    @PutMapping("/password")
+    public ResponseEntity<Map<String, Object>> changePassword(@RequestBody Map<String, String> req) {
+        String email = req.get("email");
+        String currentPw = req.get("currentPw");
+        String newPw = req.get("newPw");
+
+        userService.changePassword(email, currentPw, newPw);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("message", "비밀번호 변경 완료");
+
+        return ResponseEntity.ok(result);
+    }
+
+
 }

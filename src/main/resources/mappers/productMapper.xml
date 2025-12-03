@@ -35,6 +35,7 @@
     <!-- 상품 이미지 삽입 -->
     <insert id="insertProductFile">
         INSERT INTO File (
+        id,
         uuid,
         product_id,
         save_dir,
@@ -42,6 +43,7 @@
         file_size
         )
         VALUES (
+        NULL,
         UUID(),
         #{productId},
         #{saveDir},
@@ -52,7 +54,9 @@
 
 
     <!-- ⭐ 전체 상품 조회 -->
-    <select id="selectAllProducts" resultType="com.roomgenius.furniture_recommendation.entity.ProductVO">
+    <select id="selectAllProducts"
+            resultType="com.roomgenius.furniture_recommendation.entity.ProductVO">
+
         SELECT
         p.product_id     AS productId,
         p.category_id    AS categoryId,
@@ -65,31 +69,20 @@
         p.created_date   AS createdDate,
         p.updated_date   AS updatedDate,
 
-        -- 첫 번째 이미지 1장 URL
-        CASE
-        WHEN f.save_dir IS NOT NULL THEN
-        CONCAT(
-        '/',
-        SUBSTRING(f.save_dir, LOCATE('uploads', f.save_dir)),
-        '/',
-        f.file_name
-        )
-        ELSE NULL
-        END AS imageUrl
+        c.major_category  AS majorCategory,
+        c.middle_category AS middleCategory,
+
+        -- 대표 이미지 1장 (id 기준)
+        (
+        SELECT CONCAT('/', SUBSTRING(f.save_dir, LOCATE('uploads', f.save_dir)), '/', f.file_name)
+        FROM File f
+        WHERE f.product_id = p.product_id
+        ORDER BY f.id ASC
+        LIMIT 1
+        ) AS imageUrl
 
         FROM Product p
-
-        LEFT JOIN (
-        SELECT
-        f.*
-        FROM File f
-        INNER JOIN (
-        SELECT product_id, MIN(uuid) AS min_uuid
-        FROM File
-        GROUP BY product_id
-        ) x ON f.product_id = x.product_id AND f.uuid = x.min_uuid
-        ) f ON p.product_id = f.product_id
-
+        LEFT JOIN Category c ON p.category_id = c.category_id
         ORDER BY p.product_id DESC
     </select>
 
@@ -112,40 +105,32 @@
         p.created_date   AS createdDate,
         p.updated_date   AS updatedDate,
 
-        CASE
-        WHEN f.save_dir IS NOT NULL THEN
-        CONCAT(
-        '/',
-        SUBSTRING(f.save_dir, LOCATE('uploads', f.save_dir)),
-        '/',
-        f.file_name
-        )
-        ELSE NULL
-        END AS imageUrl
+        c.major_category  AS majorCategory,
+        c.middle_category AS middleCategory,
+
+        (
+        SELECT CONCAT('/', SUBSTRING(f.save_dir, LOCATE('uploads', f.save_dir)), '/', f.file_name)
+        FROM File f
+        WHERE f.product_id = p.product_id
+        ORDER BY f.id ASC
+        LIMIT 1
+        ) AS imageUrl
 
         FROM Product p
-        LEFT JOIN (
-        SELECT
-        f.*
-        FROM File f
-        INNER JOIN (
-        SELECT product_id, MIN(uuid) AS min_uuid
-        FROM File
-        GROUP BY product_id
-        ) x ON f.product_id = x.product_id AND f.uuid = x.min_uuid
-        ) f ON p.product_id = f.product_id
-
+        LEFT JOIN Category c ON p.category_id = c.category_id
         WHERE p.product_id = #{productId}
     </select>
 
 
-    <!-- ⭐ 단일 상품 삭제 -->
+
+    <!-- 상품 삭제 -->
     <delete id="deleteProductById" parameterType="int">
         DELETE FROM Product
         WHERE product_id = #{productId}
     </delete>
 
-    <!-- ⭐ 상품 수정 -->
+
+    <!-- 상품 수정 -->
     <update id="updateProduct"
             parameterType="com.roomgenius.furniture_recommendation.entity.ProductDTO">
 
@@ -160,8 +145,6 @@
         description = #{description},
         updated_date = NOW()
         WHERE product_id = #{productId}
-
     </update>
-
 
 </mapper>

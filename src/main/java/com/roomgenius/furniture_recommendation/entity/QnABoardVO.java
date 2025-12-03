@@ -29,4 +29,7 @@ public class QnABoardVO {
     private LocalDateTime updatedDate;  // updated_date
 
     private List<FileVO> images;
+
+    private String answer; // 관리자 답변
+    private LocalDateTime answeredDate; // 답변날짜
 }

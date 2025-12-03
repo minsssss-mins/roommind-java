@@ -17,6 +17,8 @@ public class JwtTokenProvider {
     private final SecretKey secretKey;
     private final long expirationTime;
 
+
+
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.expiration}") long expirationTime) {
@@ -28,17 +30,26 @@ public class JwtTokenProvider {
      * JWT 토큰 생성
      */
     public String generateToken(String email, String role) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expirationTime);
+
+        long nowMillis = System.currentTimeMillis();
+        Date now = new Date(nowMillis);
+
+        // 만료 시간 (밀리초)
+        Date expiryDate = new Date(nowMillis + expirationTime);
+
+        // 프론트용 exp (초 단위)
+        long expSec = (nowMillis + expirationTime) / 1000;
 
         return Jwts.builder()
                 .subject(email)                       // 사용자 식별값 (이메일)
                 .claim("role", role)                  // 권한 정보
-                .issuedAt(now)                        // 발행 시간
-                .expiration(expiryDate)               // 만료 시간
+                .claim("exp", expSec)                 // 프론트에서 사용할 exp (초 단위)
+                .issuedAt(now)                        // 발행 시간 (Date)
+                .expiration(expiryDate)               // 만료 시간 (Date)
                 .signWith(secretKey)                  // 서명
                 .compact();
     }
+
 
     /**
      * JWT 토큰에서 이메일 추출

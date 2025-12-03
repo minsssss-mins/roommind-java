@@ -54,5 +54,6 @@ google:
   tokenUri: ${GOOGLE_TOKEN_URI}
   userInfoUri: ${GOOGLE_USER_INFO_URI}
 
-
+file:
+  upload-dir: ${UPLOAD_DIR:uploads}
 
