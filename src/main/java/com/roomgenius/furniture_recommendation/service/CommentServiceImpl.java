@@ -20,8 +20,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentVO> getComments(Integer boardId) {
-        return commentMapper.selectCommentsByBoardId(boardId);
+    public List<CommentVO> getComments(Integer communityBoardId) {
+        return commentMapper.selectCommentsByBoardId(communityBoardId);
     }
 
     @Override

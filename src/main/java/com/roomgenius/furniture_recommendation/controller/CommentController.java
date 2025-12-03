@@ -21,12 +21,14 @@ public class CommentController {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserMapper userMapper;
 
+
     /**
      * 댓글 작성
      */
-    @PostMapping
+    @PostMapping("/board/{communityBoardId}")
     public ResponseEntity<?> createComment(
             @RequestHeader("Authorization") String token,
+            @PathVariable Integer communityBoardId,
             @RequestBody CommentDTO commentDTO) {
 
         String email = jwtTokenProvider.getEmailFromToken(token.replace("Bearer ", ""));
@@ -36,20 +38,25 @@ public class CommentController {
             return ResponseEntity.status(401).body("사용자를 찾을 수 없습니다.");
         }
 
+        // ⭐ 핵심: 어떤 게시글에 댓글 다는지 명확히 설정
+        commentDTO.setCommunityBoardId(communityBoardId);
         commentDTO.setUserId(user.getUserId());
+
         commentService.insertComment(commentDTO);
 
         return ResponseEntity.ok("댓글이 등록되었습니다.");
     }
 
+
     /**
      * 게시글별 댓글 목록 조회
      */
-    @GetMapping("/board/{boardId}")
-    public ResponseEntity<List<CommentVO>> getCommentsByBoardId(@PathVariable Integer boardId) {
-        List<CommentVO> comments = commentService.getComments(boardId);
+    @GetMapping("/board/{communityBoardId}")
+    public ResponseEntity<List<CommentVO>> getCommentsByBoardId(@PathVariable Integer communityBoardId) {
+        List<CommentVO> comments = commentService.getComments(communityBoardId);
         return ResponseEntity.ok(comments);
     }
+
 
     /**
      * 댓글 단건 조회
@@ -59,6 +66,7 @@ public class CommentController {
         CommentVO comment = commentService.getComment(commentId);
         return ResponseEntity.ok(comment);
     }
+
 
     /**
      * 댓글 수정
@@ -78,10 +86,12 @@ public class CommentController {
 
         commentDTO.setCommentId(commentId);
         commentDTO.setUserId(user.getUserId());
+
         commentService.updateComment(commentDTO);
 
         return ResponseEntity.ok("댓글이 수정되었습니다.");
     }
+
 
     /**
      * 댓글 삭제

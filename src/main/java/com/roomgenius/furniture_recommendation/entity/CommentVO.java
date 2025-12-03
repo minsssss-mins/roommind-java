@@ -12,12 +12,12 @@ import lombok.*;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CommentVO {
     private Integer commentId;
-    private Integer boardId;
+    private Integer communityBoardId;
     private Integer userId;
     private String content;
     private String createdDate;
     private String updatedDate;
 
     // 유저 정보
-    private String username;
+    private String userName;
 }

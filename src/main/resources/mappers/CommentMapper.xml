@@ -10,51 +10,74 @@
             parameterType="com.roomgenius.furniture_recommendation.entity.CommentDTO"
             useGeneratedKeys="true"
             keyProperty="commentId">
-        INSERT INTO CommunityComment (board_id, user_id, content)
-        VALUES (#{boardId}, #{userId}, #{content})
+
+        INSERT INTO CommunityComment (
+        community_board_id,
+        user_id,
+        content
+        )
+        VALUES (
+        #{communityBoardId},
+        #{userId},
+        #{content}
+        )
     </insert>
 
     <!-- 댓글 목록 조회 -->
     <select id="selectCommentsByBoardId"
             resultType="com.roomgenius.furniture_recommendation.entity.CommentVO">
+
         SELECT
-        c.comment_id AS commentId,
-        c.board_id AS boardId,
-        c.user_id AS userId,
-        c.content AS content,
-        c.created_date AS createdDate,
-        c.updated_date AS updatedDate,
-        u.username AS username
+        c.comment_id         AS commentId,
+        c.community_board_id AS communityBoardId,
+        c.user_id            AS userId,
+        c.content            AS content,
+        c.created_date       AS createdDate,
+        c.updated_date       AS updatedDate,
+
+        -- ★ User 테이블의 user_name → CommentVO.username 매핑
+        u.user_name          AS username
+
         FROM CommunityComment c
         JOIN User u ON c.user_id = u.user_id
-        WHERE c.board_id = #{boardId}
+        WHERE c.community_board_id = #{communityBoardId}
         ORDER BY c.created_date ASC
     </select>
+
 
     <!-- 단일 댓글 조회 -->
     <select id="selectCommentById"
             resultType="com.roomgenius.furniture_recommendation.entity.CommentVO">
+
         SELECT
-        c.comment_id AS commentId,
-        c.board_id AS boardId,
-        c.user_id AS userId,
-        c.content AS content,
-        c.created_date AS createdDate,
-        c.updated_date AS updatedDate,
-        u.username AS username
+        c.comment_id         AS commentId,
+        c.community_board_id AS communityBoardId,
+        c.user_id            AS userId,
+        c.content            AS content,
+        c.created_date       AS createdDate,
+        c.updated_date       AS updatedDate,
+
+        -- ★ User 테이블의 user_name → CommentVO.username 매핑
+        u.user_name          AS username
+
         FROM CommunityComment c
         JOIN User u ON c.user_id = u.user_id
         WHERE c.comment_id = #{commentId}
     </select>
 
+
     <!-- 댓글 수정 -->
     <update id="updateComment"
             parameterType="com.roomgenius.furniture_recommendation.entity.CommentDTO">
+
         UPDATE CommunityComment
-        SET content = #{content},
+        SET
+        content = #{content},
         updated_date = NOW()
-        WHERE comment_id = #{commentId}
+        WHERE
+        comment_id = #{commentId}
     </update>
+
 
     <!-- 댓글 삭제 -->
     <delete id="deleteComment">

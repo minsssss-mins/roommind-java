@@ -12,7 +12,7 @@ import lombok.*;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CommentDTO {
     private Integer commentId;
-    private Integer boardId;
+    private Integer communityBoardId;
     private Integer userId;
     private String content;
 }

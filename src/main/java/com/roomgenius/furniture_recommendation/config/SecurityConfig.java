@@ -63,7 +63,7 @@ public class SecurityConfig {
 
                         // 상품 crud 허용  (관리자 포함)
                         .requestMatchers("/api/admin/product/**").permitAll()
-                        .requestMatchers("/api/admin/products/**").permitAll()
+                        .requestMatchers("/api/products/**").permitAll()
 
                         // 네이버 검색 api
                         .requestMatchers("/api/naver/**").permitAll()
@@ -85,6 +85,12 @@ public class SecurityConfig {
 
                         // 카테고리 GET 누구나
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+
+                        // 댓글 GET은 누구나, 나머지는 인증 필요
+                        .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/comments/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/comments/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/comments/**").authenticated()
 
                         // 정적 이미지 허용
                         .requestMatchers("/uploads/**").permitAll()
