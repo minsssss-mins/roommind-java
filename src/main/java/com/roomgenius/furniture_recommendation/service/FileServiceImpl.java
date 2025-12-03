@@ -4,6 +4,7 @@ import com.roomgenius.furniture_recommendation.entity.FileVO;
 import com.roomgenius.furniture_recommendation.mapper.FileMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,17 +23,28 @@ public class FileServiceImpl implements FileService {
 
     private final FileMapper fileMapper;
 
-    // 실제 업로드 루트 (절대 경로)
-    private static final String UPLOAD_ROOT = System.getProperty("user.dir") + "/uploads";
+    // application.yml → file.upload-dir: ${UPLOAD_DIR:uploads}
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
+    /** 실제 사용하는 업로드 루트 경로 */
+    private String getUploadRoot() {
+
+        // EC2에서는 /home/ubuntu/uploads 로 들어옴
+        // 로컬에서는 uploadDir = "uploads" 이므로 절대경로로 변환 필요
+        if (!uploadDir.startsWith("/")) {
+            return System.getProperty("user.dir") + "/" + uploadDir;
+        }
+        return uploadDir;
+    }
 
     /** 파일 검증 */
     private void validateFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("업로드된 파일이 비어 있습니다.");
         }
-
         if (file.getSize() > MAX_FILE_SIZE) {
             throw new IllegalArgumentException("파일 용량은 최대 5MB까지 업로드할 수 있습니다.");
         }
@@ -53,23 +65,7 @@ public class FileServiceImpl implements FileService {
                 || ext.equals("webp") || ext.equals("gif") || ext.equals("avif"))) {
             throw new IllegalArgumentException("이미지 파일만 업로드 가능합니다.");
         }
-
-        String contentType = file.getContentType();
-        if (contentType == null) {
-            throw new IllegalArgumentException("이미지 파일만 업로드할 수 있습니다.");
-        }
-
-        boolean isValidMime =
-                contentType.startsWith("image/") ||
-                        contentType.equals("image/avif") ||
-                        contentType.equals("image/x-avif") ||
-                        contentType.equals("application/octet-stream");
-
-        if (!isValidMime) {
-            throw new IllegalArgumentException("이미지 형식의 파일만 업로드할 수 있습니다. Content-Type: " + contentType);
-        }
     }
-
 
     /** 실제 파일 저장 + DB 저장 */
     private List<FileVO> saveFiles(
@@ -80,7 +76,6 @@ public class FileServiceImpl implements FileService {
     ) {
 
         List<FileVO> savedFiles = new ArrayList<>();
-
         if (files == null || files.isEmpty()) {
             return savedFiles;
         }
@@ -93,15 +88,16 @@ public class FileServiceImpl implements FileService {
         else if (productId != null) typeFolder = "product";
         else if (communityBoardId != null) typeFolder = "community";
 
-        // 1) 서버 물리 저장 경로 = 절대경로
-        String realDir = UPLOAD_ROOT + "/" + typeFolder + "/" + today;
+        // 실제 저장 루트
+        String root = getUploadRoot();
+        String realDir = root + "/" + typeFolder + "/" + today;
 
         File dir = new File(realDir);
         if (!dir.exists() && dir.mkdirs()) {
             log.info("📂 업로드 디렉토리 생성: {}", dir.getAbsolutePath());
         }
 
-        // 2) DB 저장 경로 = 상대경로
+        // DB 저장 경로 (URL 경로)
         String dbDir = "uploads/" + typeFolder + "/" + today;
 
         for (MultipartFile file : files) {
@@ -110,7 +106,6 @@ public class FileServiceImpl implements FileService {
             String uuid = UUID.randomUUID().toString();
             String originalFilename = file.getOriginalFilename();
             String storedFileName = uuid + "_" + originalFilename;
-            long fileSize = file.getSize();
 
             File dest = new File(realDir, storedFileName);
 
@@ -126,43 +121,47 @@ public class FileServiceImpl implements FileService {
                     .qnaBoardId(qnaBoardId)
                     .productId(productId)
                     .communityBoardId(communityBoardId)
-                    .saveDir(dbDir)         // ⭐ DB에는 상대경로만 저장
+                    .saveDir(dbDir)
                     .fileName(storedFileName)
                     .fileType(0)
-                    .fileSize(fileSize)
+                    .fileSize(file.getSize())
                     .build();
 
             fileMapper.insert(vo);
             savedFiles.add(vo);
-
-            log.info("✅ 파일 저장 & DB 메타데이터 저장 완료: {}", vo);
+            log.info("✅ 파일 저장 완료: {}", vo);
         }
 
         return savedFiles;
     }
 
-
     /** 물리 파일 삭제 */
     private void deletePhysicalFile(String saveDir, String fileName) {
         try {
-            // saveDir → 상대경로이므로 실제 절대경로로 변환
-            String realPath = UPLOAD_ROOT + saveDir.replace("uploads", "");
+            //  SEED 이미지 보호: 실제 파일 삭제 금지
+            if (saveDir.contains("/seed/")) {
+                log.info(" SEED 이미지이므로 실제 파일은 삭제하지 않습니다: {}/{}", saveDir, fileName);
+                return;
+            }
+
+            String root = getUploadRoot();
+            // DB: uploads/product/2025-02-12 → 실제: /home/ubuntu/uploads/product/2025-02-12
+            String realPath = root + saveDir.replace("uploads", "");
 
             File file = new File(realPath, fileName);
 
             if (file.exists() && file.delete()) {
-                log.info("🗑 삭제 완료: {}", file.getAbsolutePath());
+                log.info("🗑 실제 파일 삭제 완료: {}", file.getAbsolutePath());
             } else {
                 log.warn("⚠ 삭제 실패 또는 파일 없음: {}", file.getAbsolutePath());
             }
+
         } catch (Exception e) {
             log.error("❌ 파일 삭제 중 오류", e);
         }
     }
 
-
     // ================== QnA ==================
-
     @Override
     @Transactional
     public List<FileVO> uploadQnaFiles(Integer qnaBoardId, List<MultipartFile> files) {
@@ -182,9 +181,7 @@ public class FileServiceImpl implements FileService {
         fileMapper.deleteByQnaBoardId(qnaBoardId);
     }
 
-
     // ================== PRODUCT ==================
-
     @Override
     @Transactional
     public List<FileVO> uploadProductFiles(Integer productId, List<MultipartFile> files) {
@@ -204,9 +201,7 @@ public class FileServiceImpl implements FileService {
         fileMapper.deleteByProductId(productId);
     }
 
-
     // ================== COMMUNITY ==================
-
     @Override
     @Transactional
     public List<FileVO> uploadCommunityFiles(Integer communityBoardId, List<MultipartFile> files) {
@@ -226,9 +221,7 @@ public class FileServiceImpl implements FileService {
         fileMapper.deleteByCommunityBoardId(communityBoardId);
     }
 
-
     // ================== 공통 ==================
-
     @Override
     public FileVO getFileByUuid(String uuid) {
         return fileMapper.selectByUuid(uuid);
