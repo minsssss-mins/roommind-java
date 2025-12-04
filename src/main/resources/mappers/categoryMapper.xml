@@ -6,7 +6,7 @@
 <mapper namespace="com.roomgenius.furniture_recommendation.mapper.CategoryMapper">
 
     <!-- =============================== -->
-    <!-- 전체 조회 (camelCase로 alias 적용) -->
+    <!-- 전체 조회 (정렬 적용) -->
     <!-- =============================== -->
     <select id="selectAllCategories"
             resultType="com.roomgenius.furniture_recommendation.entity.CategoryVO">
@@ -15,10 +15,13 @@
         category_id     AS categoryId,
         major_category  AS majorCategory,
         middle_category AS middleCategory,
+        sort_order      AS sortOrder,
         created_date    AS createdDate,
         updated_date    AS updatedDate
         FROM category
-        ORDER BY major_category, middle_category
+        ORDER BY
+        major_category ASC,
+        sort_order ASC
 
     </select>
 
@@ -34,6 +37,7 @@
         category_id     AS categoryId,
         major_category  AS majorCategory,
         middle_category AS middleCategory,
+        sort_order      AS sortOrder,
         created_date    AS createdDate,
         updated_date    AS updatedDate
         FROM category
@@ -43,7 +47,7 @@
 
 
     <!-- =============================== -->
-    <!-- 카테고리 문자열만 가져오기 -->
+    <!-- 카테고리 이름 조회 -->
     <!-- =============================== -->
     <select id="getCategoryName"
             parameterType="int"
@@ -57,15 +61,38 @@
 
 
     <!-- =============================== -->
-    <!-- 등록 -->
+    <!-- 정렬용: 해당 대분류의 MAX(sort_order) 조회 -->
+    <!-- =============================== -->
+    <select id="getMaxSortOrder"
+            parameterType="string"
+            resultType="int">
+
+        SELECT IFNULL(MAX(sort_order), 0)
+        FROM category
+        WHERE major_category = #{majorCategory}
+
+    </select>
+
+
+    <!-- =============================== -->
+    <!-- 등록 (항상 마지막에 추가됨) -->
     <!-- =============================== -->
     <insert id="insertCategory"
             parameterType="com.roomgenius.furniture_recommendation.entity.CategoryVO"
             useGeneratedKeys="true"
             keyProperty="categoryId">
 
-        INSERT INTO category (major_category, middle_category)
-        VALUES (#{majorCategory}, #{middleCategory})
+        INSERT INTO category
+        (major_category, middle_category, sort_order)
+        VALUES
+        (
+        #{majorCategory},
+        #{middleCategory},
+
+        (SELECT IFNULL(MAX(sort_order), 0) + 1
+        FROM category
+        WHERE major_category = #{majorCategory})
+        )
 
     </insert>
 
@@ -96,5 +123,20 @@
         WHERE category_id = #{categoryId}
 
     </delete>
+
+
+    <!-- =============================== -->
+    <!--  정렬 업데이트 -->
+    <!-- =============================== -->
+    <update id="updateOrder"
+            parameterType="com.roomgenius.furniture_recommendation.entity.CategoryVO">
+
+        UPDATE category
+        SET
+        sort_order = #{orderNo}
+        WHERE category_id = #{categoryId}
+
+    </update>
+
 
 </mapper>

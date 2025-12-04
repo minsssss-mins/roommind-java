@@ -4,6 +4,7 @@ import com.roomgenius.furniture_recommendation.entity.CategoryVO;
 import com.roomgenius.furniture_recommendation.mapper.CategoryMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -42,5 +43,14 @@ public class CategoryServiceImpl implements CategoryService {
     public int deleteCategory(Integer categoryId) {
         return categoryMapper.deleteCategory(categoryId);
     }
+
+    @Override
+    public void updateOrder(List<CategoryVO> orderList) {
+
+        for (CategoryVO vo : orderList) {
+            categoryMapper.updateOrder(vo.getCategoryId(), vo.getOrderNo());
+        }
+    }
+
 }
 
