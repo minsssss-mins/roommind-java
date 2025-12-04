@@ -46,4 +46,11 @@ public class AdminCategoryController {
         categoryService.deleteCategory(id);
         return ResponseEntity.ok("deleted");
     }
+
+    // 정렬 저장
+    @PostMapping("/reorder")
+    public ResponseEntity<?> reorderCategories(@RequestBody List<CategoryVO> orderList) {
+        categoryService.updateOrder(orderList);
+        return ResponseEntity.ok("순서 업데이트 완료");
+    }
 }

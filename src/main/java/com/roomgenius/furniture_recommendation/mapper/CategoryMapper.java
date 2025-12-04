@@ -2,6 +2,7 @@ package com.roomgenius.furniture_recommendation.mapper;
 
 import com.roomgenius.furniture_recommendation.entity.CategoryVO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -19,5 +20,8 @@ public interface CategoryMapper {
     int updateCategory(CategoryVO vo);
 
     int deleteCategory(Integer categoryId);
+
+    void updateOrder(@Param("categoryId") Integer categoryId,
+                     @Param("orderNo") Integer orderNo);
 }
 

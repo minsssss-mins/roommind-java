@@ -11,4 +11,6 @@ public interface CategoryService {
     int insertCategory(CategoryVO vo);
     int updateCategory(CategoryVO vo);
     int deleteCategory(Integer categoryId);
+
+    void updateOrder(List<CategoryVO> orderList);
 }
