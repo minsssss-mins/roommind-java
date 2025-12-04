@@ -5,11 +5,12 @@
 
 <mapper namespace="com.roomgenius.furniture_recommendation.mapper.ProductMapper">
 
-
     <!-- ========================= -->
     <!-- 필터 검색 (검색 + 정렬 + 대분류/중분류) -->
     <!-- ========================= -->
-    <select id="selectFilteredProducts" resultType="com.roomgenius.furniture_recommendation.entity.ProductVO">
+    <select id="selectFilteredProducts"
+            resultType="com.roomgenius.furniture_recommendation.entity.ProductVO">
+
         SELECT
         p.product_id,
         p.category_id,
@@ -65,7 +66,10 @@
         </choose>
     </select>
 
+
+    <!-- ========================= -->
     <!-- 상품 등록 -->
+    <!-- ========================= -->
     <insert id="insertProduct"
             parameterType="com.roomgenius.furniture_recommendation.entity.ProductDTO"
             useGeneratedKeys="true"
@@ -92,28 +96,33 @@
     </insert>
 
 
+    <!-- ========================= -->
     <!-- 상품 이미지 삽입 -->
+    <!-- File 테이블 구조에 맞게 수정 (uuid가 PK) -->
+    <!-- ========================= -->
     <insert id="insertProductFile">
         INSERT INTO File (
-        id,
         uuid,
         product_id,
         save_dir,
         file_name,
+        file_type,
         file_size
         )
         VALUES (
-        NULL,
         UUID(),
         #{productId},
         #{saveDir},
         #{fileName},
+        0,              -- file_type: 0 = 일반
         #{fileSize}
         )
     </insert>
 
 
+    <!-- ========================= -->
     <!-- ⭐ 전체 상품 조회 -->
+    <!-- ========================= -->
     <select id="selectAllProducts"
             resultType="com.roomgenius.furniture_recommendation.entity.ProductVO">
 
@@ -132,12 +141,17 @@
         c.major_category  AS majorCategory,
         c.middle_category AS middleCategory,
 
-        -- 대표 이미지 1장 (id 기준)
+        -- 대표 이미지 1장 (created_date 기준)
         (
-        SELECT CONCAT('/', SUBSTRING(f.save_dir, LOCATE('uploads', f.save_dir)), '/', f.file_name)
+        SELECT CONCAT(
+        '/',
+        SUBSTRING(f.save_dir, LOCATE('uploads', f.save_dir)),
+        '/',
+        f.file_name
+        )
         FROM File f
         WHERE f.product_id = p.product_id
-        ORDER BY f.id ASC
+        ORDER BY f.created_date ASC
         LIMIT 1
         ) AS imageUrl
 
@@ -147,8 +161,9 @@
     </select>
 
 
-
+    <!-- ========================= -->
     <!-- ⭐ 단일 상품 조회 -->
+    <!-- ========================= -->
     <select id="getProductById"
             parameterType="int"
             resultType="com.roomgenius.furniture_recommendation.entity.ProductVO">
@@ -169,10 +184,15 @@
         c.middle_category AS middleCategory,
 
         (
-        SELECT CONCAT('/', SUBSTRING(f.save_dir, LOCATE('uploads', f.save_dir)), '/', f.file_name)
+        SELECT CONCAT(
+        '/',
+        SUBSTRING(f.save_dir, LOCATE('uploads', f.save_dir)),
+        '/',
+        f.file_name
+        )
         FROM File f
         WHERE f.product_id = p.product_id
-        ORDER BY f.id ASC
+        ORDER BY f.created_date ASC
         LIMIT 1
         ) AS imageUrl
 
@@ -182,28 +202,31 @@
     </select>
 
 
-
+    <!-- ========================= -->
     <!-- 상품 삭제 -->
+    <!-- ========================= -->
     <delete id="deleteProductById" parameterType="int">
         DELETE FROM Product
         WHERE product_id = #{productId}
     </delete>
 
 
+    <!-- ========================= -->
     <!-- 상품 수정 -->
+    <!-- ========================= -->
     <update id="updateProduct"
             parameterType="com.roomgenius.furniture_recommendation.entity.ProductDTO">
 
         UPDATE Product
         SET
-        category_id = #{categoryId},
+        category_id  = #{categoryId},
         product_name = #{productName},
-        brand = #{brand},
+        brand        = #{brand},
         original_price = #{originalPrice},
-        sale_price = #{salePrice},
-        stock = #{stock},
-        description = #{description},
-        updated_date = NOW()
+        sale_price     = #{salePrice},
+        stock          = #{stock},
+        description    = #{description},
+        updated_date   = NOW()
         WHERE product_id = #{productId}
     </update>
 
