@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.roomgenius.furniture_recommendation.mapper.OrderMapper">
+
+    <!-- ========== Order 매핑 ========== -->
+    <resultMap id="OrderResultMap"
+               type="com.roomgenius.furniture_recommendation.entity.OrderVO">
+        <id     property="orderId"        column="order_id"/>
+        <result property="userId"         column="user_id"/>
+        <result property="deliveryAddress" column="delivery_address"/>
+        <result property="status"         column="status"/>
+        <result property="totalPrice"     column="total_price"/>
+        <result property="createdDate"    column="created_date"/>
+        <result property="updatedDate"    column="updated_date"/>
+    </resultMap>
+
+    <!-- ========== Order_Detail 매핑 ========== -->
+    <resultMap id="OrderDetailResultMap"
+               type="com.roomgenius.furniture_recommendation.entity.OrderDetailVO">
+        <id     property="orderDetailId" column="order_detail_id"/>
+        <result property="orderId"       column="order_id"/>
+        <result property="productId"     column="product_id"/>
+        <result property="price"         column="price"/>
+        <result property="quantity"      column="quantity"/>
+    </resultMap>
+
+    <!-- ========== INSERT: Orders ========== -->
+    <insert id="insertOrder"
+            parameterType="com.roomgenius.furniture_recommendation.entity.OrderVO"
+            useGeneratedKeys="true"
+            keyProperty="orderId">
+        INSERT INTO Orders
+        (user_id, delivery_address, status, total_price)
+        VALUES
+        (#{userId}, #{deliveryAddress}, #{status}, #{totalPrice})
+    </insert>
+
+    <!-- ========== INSERT: Order_Detail ========== -->
+    <insert id="insertOrderDetail"
+            parameterType="com.roomgenius.furniture_recommendation.entity.OrderDetailVO"
+            useGeneratedKeys="true"
+            keyProperty="orderDetailId">
+        INSERT INTO Order_Detail
+        (order_id, product_id, price, quantity)
+        VALUES
+        (#{orderId}, #{productId}, #{price}, #{quantity})
+    </insert>
+
+    <!-- ========== SELECT: 유저 주문 목록 ========== -->
+    <select id="selectOrdersByUserId"
+            parameterType="int"
+            resultMap="OrderResultMap">
+        SELECT *
+        FROM Orders
+        WHERE user_id = #{userId}
+        ORDER BY created_date DESC
+    </select>
+
+    <!-- ========== SELECT: 주문 단건 ========== -->
+    <select id="selectOrderById"
+            parameterType="int"
+            resultMap="OrderResultMap">
+        SELECT *
+        FROM Orders
+        WHERE order_id = #{orderId}
+    </select>
+
+    <!-- ========== SELECT: 주문 상세 목록 ========== -->
+    <select id="selectOrderDetailsByOrderId"
+            parameterType="int"
+            resultMap="OrderDetailResultMap">
+        SELECT *
+        FROM Order_Detail
+        WHERE order_id = #{orderId}
+    </select>
+
+    <!-- ========== UPDATE: 주문 상태 변경 (PENDING → PAID 등) ========== -->
+    <update id="updateOrderStatus">
+        UPDATE Orders
+        SET status = #{status},
+        updated_date = CURRENT_TIMESTAMP
+        WHERE order_id = #{orderId}
+    </update>
+
+</mapper>

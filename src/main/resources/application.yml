@@ -57,3 +57,8 @@ google:
 file:
   upload-dir: ${UPLOAD_DIR:uploads}
 
+
+portone:
+  store-id: ${STORE-ID}
+  secret: ${SECRET}
+
