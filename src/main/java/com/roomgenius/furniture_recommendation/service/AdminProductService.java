@@ -25,8 +25,8 @@ public interface AdminProductService {
     /** 상품 등록 */
     Integer addProduct(ProductDTO dto);
 
-    /** 상품 수정 */
-    void updateProduct(Integer id, ProductDTO dto);
+    // ⭐ 상품 수정 추가
+    int updateProduct(ProductDTO dto);
 
     /** 상품 삭제 + 파일 삭제 */
     void deleteProduct(Integer id);

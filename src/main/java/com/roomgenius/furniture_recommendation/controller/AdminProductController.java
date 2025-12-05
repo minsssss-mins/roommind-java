@@ -4,11 +4,13 @@ import com.roomgenius.furniture_recommendation.entity.ProductDTO;
 import com.roomgenius.furniture_recommendation.entity.ProductVO;
 import com.roomgenius.furniture_recommendation.service.AdminProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/products")
@@ -17,10 +19,7 @@ public class AdminProductController {
 
     private final AdminProductService adminProductService;
 
-    /**
-     * 검색 + 정렬 + 카테고리 필터 + 전체 조회 통합
-     * GET /api/admin/products?keyword=&sort=&major=&middle=
-     */
+    /** 리스트 조회 + 검색/정렬/필터 */
     @GetMapping
     public List<ProductVO> listProducts(
             @RequestParam(required = false) String keyword,
@@ -37,7 +36,9 @@ public class AdminProductController {
         return adminProductService.getProductById(id);
     }
 
-    /** 등록 (상품 + 이미지) */
+    /** ==========================
+     *  상품 등록 (상품 + 단일 이미지)
+     * ========================== */
     @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<String> insert(
             @RequestPart("product") ProductDTO dto,
@@ -46,7 +47,7 @@ public class AdminProductController {
         // 1) 상품 저장
         Integer productId = adminProductService.addProduct(dto);
 
-        // 2) 파일 저장
+        // 2) 이미지 저장
         if (file != null && !file.isEmpty()) {
             adminProductService.saveProductImage(productId, file);
         }
@@ -54,17 +55,34 @@ public class AdminProductController {
         return ResponseEntity.ok("created");
     }
 
-    /** 수정 */
-    @PutMapping("/{id}")
-    public ResponseEntity<String> update(
-            @PathVariable Integer id,
-            @RequestBody ProductDTO dto
-    ) {
-        adminProductService.updateProduct(id, dto);
-        return ResponseEntity.ok("updated");
+    /** ==========================
+     *  상품 수정 (상품 JSON + 이미지들)
+     * ========================== */
+    @PutMapping("/{productId}")
+    public ResponseEntity<?> updateProduct(
+            @PathVariable Integer productId,
+            @RequestPart("product") ProductDTO dto,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+
+        dto.setProductId(productId);
+        dto.setFiles(files);
+
+        int updated = adminProductService.updateProduct(dto);
+
+        if (updated == 0) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "success", false,
+                    "message", "수정할 상품을 찾을 수 없습니다."
+            ));
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "상품이 성공적으로 수정되었습니다."
+        ));
     }
 
-    /** 삭제 (파일 포함) */
+    /** 삭제 + 이미지 삭제 */
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable Integer id) {
         adminProductService.deleteProduct(id);

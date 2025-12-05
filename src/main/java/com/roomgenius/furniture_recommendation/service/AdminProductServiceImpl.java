@@ -71,17 +71,20 @@ public class AdminProductServiceImpl implements AdminProductService {
         return productId;
     }
 
-    /** 상품 수정 */
+    /* 상품 수정 + 이미지 수정 */
     @Override
-    public void updateProduct(Integer id, ProductDTO dto) {
+    @Transactional
+    public int updateProduct(ProductDTO dto) {
 
-        if (id == null) throw new IllegalArgumentException("상품 ID는 필수입니다.");
+        int result = adminProductMapper.updateProduct(dto);
 
-        validateProductDTO(dto);
-        dto.setProductId(id);
+        if (dto.getFiles() != null && !dto.getFiles().isEmpty()) {
 
-        int row = adminProductMapper.updateProduct(dto);
-        if (row == 0) throw new RuntimeException("상품 수정 실패 id=" + id);
+            fileService.deleteProductFiles(dto.getProductId());
+            fileService.uploadProductFiles(dto.getProductId(), dto.getFiles());
+        }
+
+        return result;
     }
 
     /** 상품 삭제 + 파일 삭제 */
