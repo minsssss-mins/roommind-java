@@ -89,7 +89,7 @@ public class QnABoardController {
         ));
     }
 
-    /** ==================== 게시글 수정 ==================== */
+    /** ==================== QnA 게시글 수정 ==================== */
     @PutMapping(value = "/{boardId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateBoard(
             @PathVariable int boardId,
@@ -98,32 +98,35 @@ public class QnABoardController {
             @RequestHeader("Authorization") String tokenHeader) {
 
         String email = jwtTokenProvider.getEmailFromToken(tokenHeader.substring(7));
-
         UserVO user = userService.findByEmail(email);
+
         if (user == null) {
             throw new IllegalArgumentException("로그인이 필요합니다.");
         }
 
         dto.setQnaBoardId(boardId);
 
-        // 본인 검증 + 수정
+        // 1) 게시글 수정
         qnABoardService.update(dto, user.getUserId());
 
-        // 이미지 교체
+        // 2) 이미지 교체 처리
         boolean replaced = false;
 
         if (images != null && !images.isEmpty()) {
             replaced = true;
-            fileService.deleteCommunityFiles(boardId);
-            fileService.uploadCommunityFiles(boardId, images);
+
+            // ⭐⭐ QnA 용으로 교체해야 함 (문제의 핵심 부분)
+            fileService.deleteQnaFiles(boardId);
+            fileService.uploadQnaFiles(boardId, images);
         }
 
         return ResponseEntity.ok(Map.of(
                 "success", true,
-                "message", "게시글 수정 성공",
+                "message", "QnA 게시글 수정 성공",
                 "imagesReplaced", replaced
         ));
     }
+
     /** ==================== 게시글 삭제 ==================== */
     @DeleteMapping("/{boardId}")
     public ResponseEntity<?> deleteBoard(

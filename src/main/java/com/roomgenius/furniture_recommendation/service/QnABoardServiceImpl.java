@@ -96,7 +96,7 @@ public class QnABoardServiceImpl implements QnABoardService {
         }
     }
 
-    /** ==================== 게시글 수정 ==================== */
+    /** ==================== QnA 게시글 수정 ==================== */
     @Override
     @Transactional
     public Integer update(QnABoardDTO dto, Integer requestUserId) {
@@ -113,7 +113,7 @@ public class QnABoardServiceImpl implements QnABoardService {
             if (!existing.getUserId().equals(requestUserId))
                 throw new IllegalStateException("본인 게시글만 수정할 수 있습니다.");
 
-            QnABoardVO vo =QnABoardVO.builder()
+            QnABoardVO vo = QnABoardVO.builder()
                     .qnaBoardId(dto.getQnaBoardId())
                     .title(dto.getTitle())
                     .content(dto.getContent())
@@ -121,18 +121,20 @@ public class QnABoardServiceImpl implements QnABoardService {
 
             int result = qnABoardMapper.update(vo);
             if (result == 0)
-                throw new RuntimeException("커뮤니티 게시글 수정 실패");
+                throw new RuntimeException("QnA 게시글 수정 실패");
 
             return result;
 
         } catch (IllegalArgumentException | IllegalStateException | NoSuchElementException e) {
             log.warn("❌ 수정 오류: {}", e.getMessage());
             throw e;
+
         } catch (Exception e) {
             log.error("❌ 수정 중 오류", e);
-            throw new RuntimeException("커뮤니티 게시글 수정 중 서버 오류 발생");
+            throw new RuntimeException("QnA 게시글 수정 중 서버 오류 발생");
         }
     }
+
 
     /** ==================== 게시글 삭제 ==================== */
     @Override
