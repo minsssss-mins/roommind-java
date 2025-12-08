@@ -4,11 +4,13 @@ import com.roomgenius.furniture_recommendation.entity.OrderDTO;
 import com.roomgenius.furniture_recommendation.entity.PaymentConfirmDTO;
 import com.roomgenius.furniture_recommendation.service.PaymentService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/payments")
 @RequiredArgsConstructor
+@Slf4j
 public class PaymentController {
 
     private final PaymentService paymentService;

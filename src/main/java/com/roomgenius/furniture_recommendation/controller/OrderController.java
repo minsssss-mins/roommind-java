@@ -1,10 +1,10 @@
 package com.roomgenius.furniture_recommendation.controller;
 
 import com.roomgenius.furniture_recommendation.entity.OrderDTO;
-import com.roomgenius.furniture_recommendation.entity.PaymentConfirmDTO;
 import com.roomgenius.furniture_recommendation.service.OrderService;
 import com.roomgenius.furniture_recommendation.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
+@Slf4j
 public class OrderController {
 
     private final OrderService orderService;

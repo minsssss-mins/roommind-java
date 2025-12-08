@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.roomgenius.furniture_recommendation.mapper.CartMapper">
+
+    <!-- 기존 장바구니 확인 -->
+    <select id="findByUserAndProduct" resultType="com.roomgenius.furniture_recommendation.entity.CartVO">
+        SELECT *
+        FROM Cart
+        WHERE user_id = #{userId}
+        AND product_id = #{productId}
+    </select>
+
+    <!-- 유저 장바구니 조회 -->
+    <select id="findByUserId" resultType="com.roomgenius.furniture_recommendation.entity.CartVO">
+        SELECT *
+        FROM Cart
+        WHERE user_id = #{userId}
+        ORDER BY cart_id DESC
+    </select>
+
+    <!-- 추가 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="cartId">
+        INSERT INTO Cart (user_id, product_id, product_count, selected_option)
+        VALUES (#{userId}, #{productId}, #{productCount}, #{selectedOption})
+    </insert>
+
+    <!-- 수량 변경 (서비스에서 본인 검사 후 cartId 기준으로만 수정) -->
+    <update id="updateCount" parameterType="com.roomgenius.furniture_recommendation.entity.CartVO">
+        UPDATE Cart
+        SET product_count = #{productCount}
+        WHERE cart_id = #{cartId}
+    </update>
+
+    <!-- 삭제 (서비스에서 본인 검사 후 cartId 기준으로만 삭제) -->
+    <delete id="delete">
+        DELETE FROM Cart
+        WHERE cart_id = #{cartId}
+    </delete>
+
+    <!-- 전체 삭제 -->
+    <delete id="clearUserCart">
+        DELETE FROM Cart
+        WHERE user_id = #{userId}
+    </delete>
+
+    <!-- 단일 조회 -->
+    <select id="findByCartId" resultType="com.roomgenius.furniture_recommendation.entity.CartVO">
+        SELECT *
+        FROM Cart
+        WHERE cart_id = #{cartId}
+    </select>
+
+</mapper>

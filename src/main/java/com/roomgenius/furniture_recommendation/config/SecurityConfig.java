@@ -100,6 +100,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/reviews/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/reviews/**").authenticated()
 
+                        // 장바구니는 모든 요청 인증 필요
+                        .requestMatchers(HttpMethod.GET, "/api/cart/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/cart/**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/cart/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/cart/**").authenticated()
+
                         // 정적 이미지 허용
                         .requestMatchers("/uploads/**").permitAll()
 
