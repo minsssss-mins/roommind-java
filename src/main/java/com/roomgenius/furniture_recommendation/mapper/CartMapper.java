@@ -1,5 +1,6 @@
 package com.roomgenius.furniture_recommendation.mapper;
 
+import com.roomgenius.furniture_recommendation.entity.CartDTO;
 import com.roomgenius.furniture_recommendation.entity.CartVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -12,7 +13,8 @@ public interface CartMapper {
     CartVO findByUserAndProduct(@Param("userId") int userId,
                                 @Param("productId") int productId);
 
-    List<CartVO> findByUserId(@Param("userId") int userId);
+    List<CartDTO> findByUserId(int userId);
+
 
     int insert(CartVO cart);
 

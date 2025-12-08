@@ -83,21 +83,9 @@ public class CartServiceImpl implements CartService {
             throw new IllegalArgumentException("잘못된 사용자 ID입니다.");
         }
 
-        List<CartVO> list = cartMapper.findByUserId(userId);
-        List<CartDTO> result = new ArrayList<>();
-
-        for (CartVO vo : list) {
-            CartDTO dto = new CartDTO();
-            dto.setCartId(vo.getCartId());
-            dto.setUserId(vo.getUserId());
-            dto.setProductId(vo.getProductId());
-            dto.setProductCount(vo.getProductCount());
-            dto.setSelectedOption(vo.getSelectedOption());
-            result.add(dto);
-        }
-
-        return result;
+        return cartMapper.findByUserId(userId);  // DTO 그대로 받기
     }
+
 
     /** 수량 변경 */
     @Override

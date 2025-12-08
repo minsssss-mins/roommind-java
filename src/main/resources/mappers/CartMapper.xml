@@ -14,12 +14,37 @@
     </select>
 
     <!-- 유저 장바구니 조회 -->
-    <select id="findByUserId" resultType="com.roomgenius.furniture_recommendation.entity.CartVO">
-        SELECT *
-        FROM Cart
-        WHERE user_id = #{userId}
-        ORDER BY cart_id DESC
+    <select id="findByUserId" resultType="com.roomgenius.furniture_recommendation.entity.CartDTO">
+        SELECT
+        c.cart_id AS cartId,
+        c.user_id AS userId,
+        c.product_id AS productId,
+        c.product_count AS productCount,
+        c.selected_option AS selectedOption,
+
+        p.product_name AS productName,
+        p.sale_price AS price,
+
+        -- ⭐ uploads/ 형태로 반환
+        CONCAT(
+        '/uploads/',
+        REPLACE(f.save_dir, 'uploads/', ''),  -- uploads/ 중복 제거
+        '/',
+        f.file_name
+        ) AS imageUrl
+
+        FROM Cart c
+        JOIN Product p ON c.product_id = p.product_id
+        LEFT JOIN File f
+        ON p.product_id = f.product_id
+        AND f.file_type = 0
+
+        WHERE c.user_id = #{userId}
+        ORDER BY c.cart_id DESC
     </select>
+
+
+
 
     <!-- 추가 -->
     <insert id="insert" useGeneratedKeys="true" keyProperty="cartId">
