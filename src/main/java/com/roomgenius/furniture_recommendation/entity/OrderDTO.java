@@ -1,6 +1,8 @@
 package com.roomgenius.furniture_recommendation.entity;
 
 import lombok.Data;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -14,4 +16,13 @@ public class OrderDTO {
     private Integer orderId;             // 생성된 주문 번호
     private Integer totalPrice;          // 서버에서 최종 계산한 총액
     private String status;               // PENDING / PAID ...
+
+    private int userId;       // mapper에서 select함
+    private String userName;  // mapper에서 select함
+
+    private LocalDateTime createdDate;
+    private LocalDateTime updatedDate;
+
+
+
 }

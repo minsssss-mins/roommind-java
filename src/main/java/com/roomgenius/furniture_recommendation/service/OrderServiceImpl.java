@@ -1,9 +1,6 @@
 package com.roomgenius.furniture_recommendation.service.impl;
 
-import com.roomgenius.furniture_recommendation.entity.OrderDTO;
-import com.roomgenius.furniture_recommendation.entity.OrderItemDTO;
-import com.roomgenius.furniture_recommendation.entity.OrderVO;
-import com.roomgenius.furniture_recommendation.entity.OrderDetailVO;
+import com.roomgenius.furniture_recommendation.entity.*;
 import com.roomgenius.furniture_recommendation.mapper.OrderMapper;
 import com.roomgenius.furniture_recommendation.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +20,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderDTO createOrder(Integer userId, OrderDTO dto) {
 
-        // 🛡️ 방어 코드: items 비었으면 예외
+        // 방어 코드
         if (dto.getItems() == null || dto.getItems().isEmpty()) {
             throw new IllegalArgumentException("주문 상품이 비어 있습니다.");
         }
@@ -33,7 +30,7 @@ public class OrderServiceImpl implements OrderService {
                 .mapToInt(i -> i.getPrice() * i.getQuantity())
                 .sum();
 
-        // Orders INSERT (PENDING)
+        // Orders INSERT
         OrderVO order = OrderVO.builder()
                 .userId(userId)
                 .deliveryAddress(dto.getDeliveryAddress())
@@ -41,9 +38,9 @@ public class OrderServiceImpl implements OrderService {
                 .totalPrice(totalPrice)
                 .build();
 
-        orderMapper.insertOrder(order); // orderId 세팅됨
+        orderMapper.insertOrder(order);
 
-        // Order_Detail INSERT
+        // 상세 INSERT
         for (OrderItemDTO item : dto.getItems()) {
             OrderDetailVO detail = OrderDetailVO.builder()
                     .orderId(order.getOrderId())
@@ -55,7 +52,7 @@ public class OrderServiceImpl implements OrderService {
             orderMapper.insertOrderDetail(detail);
         }
 
-        // 응답 DTO 세팅
+        // 응답 설정
         dto.setOrderId(order.getOrderId());
         dto.setTotalPrice(totalPrice);
         dto.setStatus("PENDING");
@@ -79,5 +76,49 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return result;
+    }
+
+    @Override
+    public List<OrderDTO> getAllOrders() {
+        return orderMapper.selectAllOrdersWithUser();
+    }
+
+    @Override
+    public void updateOrderStatus(int orderId, String newStatus) {
+        orderMapper.updateOrderStatus(orderId, newStatus);
+    }
+
+    // 관리자: 주문 상세 조회
+    @Override
+    public OrderDetailResponseDTO getOrderDetailAdmin(int orderId) {
+
+        List<OrderDetailAdminDTO> rows = orderMapper.selectOrderDetailAdmin(orderId);
+
+        if (rows.isEmpty()) return null;
+
+        OrderDetailAdminDTO first = rows.get(0);
+
+        OrderDetailResponseDTO dto = new OrderDetailResponseDTO();
+        dto.setOrderId(first.getOrderId());
+        dto.setUserName(first.getUserName());
+        dto.setTotalPrice(first.getTotalPrice());
+        dto.setStatus(first.getStatus());
+        dto.setDeliveryAddress(first.getDeliveryAddress());
+        dto.setCreatedDate(first.getCreatedDate());
+
+        List<OrderDetailResponseDTO.Item> items =
+                rows.stream()
+                        .map(r -> new OrderDetailResponseDTO.Item(
+                                r.getOrderDetailId(),
+                                r.getProductName(),
+                                r.getQuantity(),
+                                r.getPrice(),
+                                r.getImageUrl()   // ★ URL 가공 없음
+                        ))
+                        .toList();
+
+        dto.setItems(items);
+
+        return dto;
     }
 }

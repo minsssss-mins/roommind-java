@@ -104,5 +104,68 @@
         AND stock >= #{quantity}
     </update>
 
+    <!-- 관리자용 주문관리 -->
+    <select id="selectAllOrdersWithUser" resultType="com.roomgenius.furniture_recommendation.entity.OrderDTO">
+        SELECT
+        o.order_id         AS orderId,
+        o.user_id          AS userId,
+        u.user_name        AS userName,   <!-- ★ 수정됨 -->
+        o.delivery_address AS deliveryAddress,
+        o.status           AS status,
+        o.total_price      AS totalPrice,
+        o.created_date     AS createdDate,
+        o.updated_date     AS updatedDate
+        FROM Orders o
+        LEFT JOIN User u ON o.user_id = u.user_id
+        ORDER BY o.created_date DESC
+    </select>
+
+    <!-- ========================= -->
+    <!-- 관리자용 주문 상세 조회    -->
+    <!-- ========================= -->
+    <select id="selectOrderDetailAdmin"
+            parameterType="int"
+            resultType="com.roomgenius.furniture_recommendation.entity.OrderDetailAdminDTO">
+
+        SELECT
+        -- 주문 기본 정보
+        o.order_id           AS orderId,
+        o.user_id            AS userId,
+        u.user_name          AS userName,
+        o.total_price        AS totalPrice,
+        o.status             AS status,
+        o.delivery_address   AS deliveryAddress,
+        o.created_date       AS createdDate,
+
+        -- 주문 상세 정보
+        od.order_detail_id   AS orderDetailId,
+        od.product_id        AS productId,
+        od.price             AS price,
+        od.quantity          AS quantity,
+
+        -- 상품 정보
+        p.product_name       AS productName,
+
+        -- 상품 이미지
+        CONCAT('/uploads/', f.file_name) AS imageUrl
+
+        FROM Orders o
+        LEFT JOIN User u
+        ON o.user_id = u.user_id
+        LEFT JOIN Order_Detail od
+        ON o.order_id = od.order_id
+        LEFT JOIN Product p
+        ON od.product_id = p.product_id
+        LEFT JOIN File f
+        ON p.product_id = f.product_id
+        AND f.file_type = 0   -- 대표 이미지
+
+        WHERE o.order_id = #{orderId}
+        ORDER BY od.order_detail_id ASC;
+    </select>
+
+
+
+
 
 </mapper>

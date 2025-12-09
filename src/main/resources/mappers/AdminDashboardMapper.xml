@@ -52,6 +52,8 @@
         SELECT
         product_id AS productId,
         product_name AS name,
+        original_price AS originalPrice,
+        sale_price AS salePrice,
         stock
         FROM product
         WHERE stock &lt; 10
