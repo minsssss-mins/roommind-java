@@ -1,5 +1,6 @@
 package com.roomgenius.furniture_recommendation.mapper;
 
+import com.roomgenius.furniture_recommendation.entity.ReviewDTO;
 import com.roomgenius.furniture_recommendation.entity.ReviewVO;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -19,5 +20,7 @@ public interface ReviewMapper {
     ReviewVO findById(int reviewId);
 
     List<ReviewVO> findByProduct(int productId);
+
+    List<ReviewDTO> selectReviewsByUserId(Integer userId);
 }
 

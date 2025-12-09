@@ -16,6 +16,10 @@ public class ReviewDTO {
     private Integer userId;
     private Timestamp createdDate;
     private Timestamp updatedDate;
+
+    // 마이페이지 리뷰 뽑아오기위한 값! 삭제금지
+    private String productName;
+
 }
 
 

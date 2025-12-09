@@ -9,6 +9,10 @@ public interface ReviewService {
     void updateReview(Integer reviewId, ReviewDTO dto);
     void deleteReview(Integer reviewId);
     List<ReviewDTO> getProductReviews(Integer productId);
+
+    Integer findUserIdByEmail(String email);
+
+    List<ReviewDTO> getReviewsByUserId(Integer userId);
 }
 
 

@@ -98,4 +98,21 @@ public class ReviewServiceImpl implements ReviewService {
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public Integer findUserIdByEmail(String email) {
+        // UserMapper에서 userId 찾아오도록 구현
+        return userMapper.findUserIdByEmail(email);
+    }
+
+    @Override
+    public List<ReviewDTO> getReviewsByUserId(Integer userId) {
+
+        return reviewMapper.selectReviewsByUserId(userId)
+                .stream()
+                .collect(Collectors.toList());
+    }
+
+
+
 }

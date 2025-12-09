@@ -32,4 +32,5 @@ public interface UserMapper {
     Integer findIdByEmail(@Param("email") String email);
 
 
+    Integer findUserIdByEmail(String email);
 }

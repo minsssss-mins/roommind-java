@@ -50,4 +50,26 @@
         ORDER BY created_date DESC
     </select>
 
+
+
+
+    <select id="selectReviewsByUserId" parameterType="int"
+            resultType="com.roomgenius.furniture_recommendation.entity.ReviewDTO">
+
+        SELECT
+        r.review_id      AS reviewId,
+        r.product_id     AS productId,
+        r.user_id        AS userId,
+        r.rating         AS rating,
+        r.content        AS content,
+        r.created_date   AS createdDate,
+        p.product_name   AS productName
+        FROM review r
+        JOIN product p ON r.product_id = p.product_id
+        WHERE r.user_id = #{userId}
+        ORDER BY r.created_date DESC
+    </select>
+
+
+
 </mapper>
