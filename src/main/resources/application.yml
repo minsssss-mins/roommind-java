@@ -4,8 +4,7 @@ spring:
 
   sql:
     init:
-      mode: always  # 항상 실행
-      # mode: never  # 프로덕션에서는 never로 변경
+      mode: always
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -41,7 +40,7 @@ kakao:
 naver:
   clientId: ${NAVER_CLIENT_ID}
   clientSecret: ${NAVER_CLIENT_SECRET}
-  redirectUri: ${NAVER_REDIRECT_URI}          # 네이버에서 승인 후 이동할 URL
+  redirectUri: ${NAVER_REDIRECT_URI}
   authUri: ${NAVER_AUTH_URI}
   tokenUri: ${NAVER_TOKEN_URI}
   userInfoUri: ${NAVER_USER_INFO_URI}
@@ -57,8 +56,6 @@ google:
 file:
   upload-dir: ${UPLOAD_DIR:uploads}
 
-
 portone:
-  store-id: ${STORE-ID}
-  secret: ${SECRET}
-
+  store-id: ${STORE_ID}
+  secret: ${PORTONE_SECRET}

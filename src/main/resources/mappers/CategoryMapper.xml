@@ -18,7 +18,7 @@
         sort_order      AS sortOrder,
         created_date    AS createdDate,
         updated_date    AS updatedDate
-        FROM category
+        FROM Category
         ORDER BY
         major_category ASC,
         sort_order ASC
@@ -40,7 +40,7 @@
         sort_order      AS sortOrder,
         created_date    AS createdDate,
         updated_date    AS updatedDate
-        FROM category
+        FROM Category
         WHERE category_id = #{categoryId}
 
     </select>
@@ -54,7 +54,7 @@
             resultType="string">
 
         SELECT CONCAT(major_category, ' > ', middle_category)
-        FROM category
+        FROM Category
         WHERE category_id = #{categoryId}
 
     </select>
@@ -68,34 +68,32 @@
             resultType="int">
 
         SELECT IFNULL(MAX(sort_order), 0)
-        FROM category
+        FROM Category
         WHERE major_category = #{majorCategory}
 
     </select>
 
 
     <!-- =============================== -->
-    <!-- 등록 (항상 마지막에 추가됨) -->
+    <!-- 등록 -->
     <!-- =============================== -->
     <insert id="insertCategory"
             parameterType="com.roomgenius.furniture_recommendation.entity.CategoryVO"
             useGeneratedKeys="true"
             keyProperty="categoryId">
 
-        <!-- ⭐ 먼저 sortOrder 계산해서 VO.sortOrder에 넣어줌 -->
         <selectKey keyProperty="sortOrder" resultType="int" order="BEFORE">
             SELECT IFNULL(MAX(sort_order), 0) + 1
-            FROM category
+            FROM Category
             WHERE major_category = #{majorCategory}
         </selectKey>
 
-        INSERT INTO category
+        INSERT INTO Category
         (major_category, middle_category, sort_order)
         VALUES
         (#{majorCategory}, #{middleCategory}, #{sortOrder})
 
     </insert>
-
 
 
     <!-- =============================== -->
@@ -104,7 +102,7 @@
     <update id="updateCategory"
             parameterType="com.roomgenius.furniture_recommendation.entity.CategoryVO">
 
-        UPDATE category
+        UPDATE Category
         SET
         major_category = #{majorCategory},
         middle_category = #{middleCategory},
@@ -120,21 +118,19 @@
     <delete id="deleteCategory"
             parameterType="int">
 
-        DELETE FROM category
+        DELETE FROM Category
         WHERE category_id = #{categoryId}
 
     </delete>
 
 
     <!-- =============================== -->
-    <!--  정렬 업데이트 -->
+    <!-- 정렬 업데이트 -->
     <!-- =============================== -->
     <update id="updateOrder">
-        UPDATE category
+        UPDATE Category
         SET sort_order = #{sortOrder}
         WHERE category_id = #{categoryId}
     </update>
-
-
 
 </mapper>
