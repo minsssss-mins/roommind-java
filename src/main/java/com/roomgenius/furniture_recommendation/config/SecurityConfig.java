@@ -34,7 +34,12 @@ public class SecurityConfig {
 
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // React 개발 서버 주소
+        config.setAllowedOrigins(Arrays.asList(
+                "http://localhost:3000",               // 로컬 개발용
+                "http://13.209.6.113",                 // EC2에서 React 배포 HTTP
+                "https://13.209.6.113",                // HTTPS 적용 시
+                "https://roommind-react.onrender.com"  // 이전 Render용 (지금은 필요 없지만 남겨도 무방)
+        ));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE","PATCH"));
         config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         config.setExposedHeaders(Arrays.asList("Authorization")); // JWT 헤더 클라이언트 노출

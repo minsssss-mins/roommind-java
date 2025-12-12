@@ -7,42 +7,42 @@
 
     <!-- 총 회원 수 -->
     <select id="getTotalUsers" resultType="int">
-        SELECT COUNT(*) FROM user
+        SELECT COUNT(*) FROM User
     </select>
 
     <!-- 총 상품 수 -->
     <select id="getTotalProducts" resultType="int">
-        SELECT COUNT(*) FROM product
+        SELECT COUNT(*) FROM Product
     </select>
 
     <!-- 총 주문 수 -->
     <select id="getTotalOrders" resultType="int">
-        SELECT COUNT(*) FROM orders
+        SELECT COUNT(*) FROM Orders
     </select>
 
     <!-- 총 매출 -->
     <select id="getTotalRevenue" resultType="int">
-        SELECT COALESCE(SUM(total_price), 0) FROM orders
+        SELECT COALESCE(SUM(total_price), 0) FROM Orders
     </select>
 
     <!-- 오늘 주문 -->
     <select id="getTodayOrders" resultType="int">
         SELECT COUNT(*)
-        FROM orders
+        FROM Orders
         WHERE DATE(created_date) = CURRENT_DATE
     </select>
 
     <!-- 오늘 매출 -->
     <select id="getTodayRevenue" resultType="int">
         SELECT COALESCE(SUM(total_price), 0)
-        FROM orders
+        FROM Orders
         WHERE DATE(created_date) = CURRENT_DATE
     </select>
 
     <!-- 미답변 Q&A -->
     <select id="getPendingQna" resultType="int">
         SELECT COUNT(*)
-        FROM qnaboard
+        FROM QnABoard
         WHERE answer IS NULL
     </select>
 
@@ -55,19 +55,19 @@
         original_price AS originalPrice,
         sale_price AS salePrice,
         stock
-        FROM product
+        FROM Product
         WHERE stock &lt; 10
         ORDER BY stock ASC
     </select>
 
     <!-- 전체 Q&A 개수 -->
     <select id="getTotalQna" resultType="int">
-        SELECT COUNT(*) FROM qnaboard
+        SELECT COUNT(*) FROM QnABoard
     </select>
 
     <!-- 커뮤니티 총 글 수 -->
     <select id="getTotalCommunityPosts" resultType="int">
-        SELECT COUNT(*) FROM communityboard
+        SELECT COUNT(*) FROM CommunityBoard
     </select>
 
     <!-- 최근 커뮤니티 5개 -->
@@ -78,7 +78,7 @@
         title,
         user_id AS userId,
         created_date AS createdDate
-        FROM communityboard
+        FROM CommunityBoard
         ORDER BY created_date DESC
         LIMIT 5
     </select>

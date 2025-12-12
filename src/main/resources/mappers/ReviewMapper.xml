@@ -64,8 +64,8 @@
         r.content        AS content,
         r.created_date   AS createdDate,
         p.product_name   AS productName
-        FROM review r
-        JOIN product p ON r.product_id = p.product_id
+        FROM Review r
+        JOIN Product p ON r.product_id = p.product_id
         WHERE r.user_id = #{userId}
         ORDER BY r.created_date DESC
     </select>
