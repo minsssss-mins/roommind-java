@@ -72,8 +72,7 @@
 
         UPDATE CommunityComment
         SET
-        content = #{content},
-        updated_date = NOW()
+        content = #{content}
         WHERE
         comment_id = #{commentId}
     </update>

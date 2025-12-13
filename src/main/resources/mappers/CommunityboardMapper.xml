@@ -14,16 +14,12 @@
         INSERT INTO CommunityBoard (
         user_id,
         title,
-        content,
-        created_date,
-        updated_date
+        content
         )
         VALUES (
         #{userId},
         #{title},
-        #{content},
-        NOW(),
-        NOW()
+        #{content}
         );
     </insert>
 
@@ -68,11 +64,12 @@
             parameterType="com.roomgenius.furniture_recommendation.entity.CommunityBoardVO">
         UPDATE CommunityBoard
         SET
-        title        = #{title},
-        content      = #{content},
-        updated_date = NOW()
+        title   = #{title},
+        content = #{content}
         WHERE community_board_id = #{communityBoardId}
     </update>
+
+
 
     <!-- 게시글 삭제 -->
     <delete id="delete" parameterType="Integer">

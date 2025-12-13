@@ -79,14 +79,12 @@
         UPDATE User
         SET user_name = #{userName},
         phone = #{phone},
-        updated_date = NOW()
         WHERE email = #{email}
     </update>
 
     <update id="updatePassword" parameterType="com.roomgenius.furniture_recommendation.entity.UserVO">
         UPDATE User
-        SET password = #{password},
-        updated_date = NOW()
+        SET password = #{password}
         WHERE email = #{email}
     </update>
 

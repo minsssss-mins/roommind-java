@@ -17,21 +17,16 @@
         user_id,
         title,
         content,
-        answer,
-        created_date,
-        updated_date,
-        answered_date
+        answer
         )
         VALUES (
         #{userId},
         #{title},
         #{content},
-        #{answer},
-        NOW(),
-        NOW(),
-        NULL
+        #{answer}
         );
     </insert>
+
 
 
     <!-- ============================= -->
@@ -87,11 +82,11 @@
             parameterType="com.roomgenius.furniture_recommendation.entity.QnABoardVO">
         UPDATE QnABoard
         SET
-        title = #{title},
-        content = #{content},
-        updated_date = NOW()
+        title   = #{title},
+        content = #{content}
         WHERE qna_board_id = #{qnaBoardId}
     </update>
+
 
 
 
@@ -112,9 +107,10 @@
         UPDATE QnABoard
         SET
         answer = #{answer},
-        answered_date = NOW()
+        answered_date = CURRENT_TIMESTAMP
         WHERE qna_board_id = #{qnaId}
     </update>
+
 
 
     <!-- ============================= -->
