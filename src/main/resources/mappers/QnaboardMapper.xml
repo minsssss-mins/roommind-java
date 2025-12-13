@@ -96,8 +96,9 @@
     <delete id="delete">
         DELETE FROM QnABoard
         WHERE qna_board_id = #{qnaId}
-        AND user_id = #{userId}
     </delete>
+
+
 
 
     <!-- ============================= -->

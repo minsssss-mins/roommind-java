@@ -61,16 +61,15 @@ public class GlobalExceptionHandler {
     /** 🆕 IllegalStateException (예: 본인 게시글이 아닐 때) */
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalState(IllegalStateException ex) {
-        log.error(" IllegalState 예외 발생 (권한 없음): {}", ex.getMessage());
+        log.warn(" IllegalState 예외 발생: {}", ex.getMessage());
 
         Map<String, Object> error = new HashMap<>();
         error.put("success", false);
         error.put("message", ex.getMessage());
 
-        log.info(" 응답 데이터: {}", error);
-
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
+
 
     /** ✅ 기타 예상치 못한 서버 오류 */
     @ExceptionHandler(Exception.class)

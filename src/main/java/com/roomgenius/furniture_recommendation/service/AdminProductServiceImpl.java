@@ -6,6 +6,7 @@ import com.roomgenius.furniture_recommendation.entity.ProductVO;
 import com.roomgenius.furniture_recommendation.mapper.AdminProductMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -89,14 +90,29 @@ public class AdminProductServiceImpl implements AdminProductService {
 
     /** 상품 삭제 + 파일 삭제 */
     @Override
+    @Transactional
     public void deleteProduct(Integer id) {
-        if (id == null) throw new IllegalArgumentException("상품 ID는 필수입니다.");
+        if (id == null)
+            throw new IllegalArgumentException("상품 ID는 필수입니다.");
 
-        fileService.deleteProductFiles(id);
+        try {
+            // 상품 먼저 삭제 시도
+            int row = adminProductMapper.deleteProduct(id);
+            if (row == 0) {
+                throw new RuntimeException("상품 삭제 실패 id=" + id);
+            }
 
-        int row = adminProductMapper.deleteProduct(id);
-        if (row == 0) throw new RuntimeException("상품 삭제 실패 id=" + id);
+            // 상품 삭제 성공 후에만 이미지 삭제
+            fileService.deleteProductFiles(id);
+
+        } catch (DataIntegrityViolationException e) {
+            // FK 제약 조건 위반 (Review / Order / Cart)
+            throw new IllegalStateException(
+                    "상세주문, 리뷰 또는 장바구니에 사용 중인 상품은 삭제할 수 없습니다."
+            );
+        }
     }
+
 
     /** 이미지 저장 */
     @Override

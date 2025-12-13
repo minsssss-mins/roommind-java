@@ -77,10 +77,12 @@
 
     <update id="updateUser" parameterType="com.roomgenius.furniture_recommendation.entity.UserVO">
         UPDATE User
-        SET user_name = #{userName},
-        phone = #{phone},
+        SET
+        user_name = #{userName},
+        phone = #{phone}
         WHERE email = #{email}
     </update>
+
 
     <update id="updatePassword" parameterType="com.roomgenius.furniture_recommendation.entity.UserVO">
         UPDATE User
